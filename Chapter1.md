@@ -28,9 +28,10 @@ flowchart LR
 x(("x(t)")) ---> h["h(t)"] ---> r(("x(t) * h(t)"))
 ```
 
-### Example of probability of error
-
-Assuming both transmitter and receiver are optimized, assume we send the sequence `0011011010` and receive `1011011011`. THe probaility of error is $P_e = \frac{2}{10} = 20%$
+> **Example** of probability of error
+>
+> Assuming both transmitter and receiver are optimized, assume we send the sequence `0011011010` and
+> receive `1011011011`. THe probaility of error is $P_e = \frac{2}{10} = 20%$
 
 ## Noise
 
@@ -65,9 +66,9 @@ n --> sum
 * $\bar{A}$: constellation, symbols in vector format
 
 > **Example**
-> 
+>
 > Let $M=4$. The alphabet and constellation are:
-> 
+>
 > $$
 > \begin{cases}
 > b_1 = 00 \\
@@ -76,25 +77,25 @@ n --> sum
 > b_4 = 11
 > \end{cases}
 > $$
-> 
+>
 > $$
 > \bar{A} = \left\{
-    > \begin{bmatrix}
-        > 1 \\
-        > 1
-    > \end{bmatrix},
-    > \begin{bmatrix}
-        > -1 \\
-        > 1
-    > \end{bmatrix},
-    > \begin{bmatrix}
-        > 1 \\
-        > -1
-    > \end{bmatrix},
-    > \begin{bmatrix}
-        > -1 \\
-        > -1
-    > \end{bmatrix}
+>     \begin{bmatrix}
+>         1 \\
+>         1
+>     \end{bmatrix},
+>     \begin{bmatrix}
+>         -1 \\
+>         1
+>     \end{bmatrix},
+>     \begin{bmatrix}
+>         1 \\
+>         -1
+>     \end{bmatrix},
+>     \begin{bmatrix}
+>         -1 \\
+>         -1
+>     \end{bmatrix}
 > \right\}
 > \text{ (called QPSK)}
 > $$
@@ -111,23 +112,23 @@ $$
 s_i(t) = a_{i1} ϕ_1(t) + … + a_{iN} ϕ_N(t)
 $$
 
-### Example
-
-Say we want a throughput of $R_b = 10 {Mbit \over s} = 10^7 {bit \over s}$. Then, we'll need a
-transmission time per bit of $T_b = {1 \over R_b} 10^{-7} {sec \over bit}$.
-
-Taking the previous transmission as an example, we'd have a timeline such as this one:
-
-```mermaid
-timeline
-    title Transmission
-        Tb : "0"
-        2Tb : "0"
-        3Tb : "1"
-```
-
-Let's use this example using $M=4 \text{ symbols}$. Here, the first sequence of "00" is encoded by
-$b_1$, meaning the transmission time per symbol is $T = log_2M · T_b = 2T_b$.
+> **Example**
+>
+> Say we want a throughput of $R_b = 10 {Mbit \over s} = 10^7 {bit \over s}$. Then, we'll need a
+> transmission time per bit of $T_b = {1 \over R_b} 10^{-7} {sec \over bit}$.
+>
+> Taking the previous transmission as an example, we'd have a timeline such as this one:
+>
+> ```mermaid
+> timeline
+>     title Transmission
+>         Tb : "0"
+>         2Tb : "0"
+>           3Tb : "1"
+> ```
+>
+> Let's use this example using $M=4 \text{ symbols}$. Here, the first sequence of "00" is encoded by
+> $b_1$, meaning the transmission time per symbol is $T = log_2M · T_b = 2T_b$.
 
 The sequence of bits is $B_b[l]$, where $l$ is the discrete "time instant"
 
@@ -171,42 +172,42 @@ $$
 s(t) = \sum_{n} \sum_{j=1}^{N} A_{j}[n] ϕ_j(t - nT)
 $$
 
-### Example
-
-Let:
-
-* $B_b[l] → 00110110$
-* $M=4$
-* $b_1 = \text{"00"}$  
-  $b_2 = \text{"01"}$  
-  $b_3 = \text{"10"}$  
-  $b_4 = \text{"11"}$
-* $\bar{A}[n] → N=1; \{a_1, a_2, a_3, a_4\}$  
-  $a_1 = [-3]$  
-  $a_2 = [-1]$  
-  $a_3 = [1]$  
-  $a_4 = [3]$
-* $ϕ_1(t) = \frac{1}{\sqrt{T}} \; \{0<t<T\}$
-
-The sequence of symbols is processed as follows:
-
-```mermaid
-%%{init: {'forceLegacyMathML':'true'} }%%
-flowchart LR
-B0(("00")) --> b1(("$$b_1$$")) --> a1(("-3"))
-B1(("11")) --> b4(("$$b_4$$")) --> a4(("&nbsp;3"))
-B2(("01")) --> b2(("$$b_2$$")) --> a2(("-1"))
-B3(("10")) --> b3(("$$b_3$$")) --> a3(("&nbsp;1"))
-```
-
-Then, the signal transmitted is:
-
-$$
-\begin{aligned}
-s(t) &= \sum_{j=1}^1A_j[0] ϕ_j(t) + \sum_{j)1}^1 A_j[1] ϕ_j(t - T) + \dots \\
-&= -3 · ϕ_i(t) + 3 · ϕ_i(t - T) - 1 · ϕ_i(t - 2T) + 1 · ϕ_i(t - 3T)
-\end{aligned}
-$$
+> **Example**
+>
+> Let:
+>
+> * $B_b[l] → 00110110$
+> * $M=4$
+> * $b_1 = \text{"00"}$  
+>   $b_2 = \text{"01"}$  
+>   $b_3 = \text{"10"}$  
+>   $b_4 = \text{"11"}$
+> * $\bar{A}[n] → N=1; \{a_1, a_2, a_3, a_4\}$  
+>   $a_1 = [-3]$  
+>   $a_2 = [-1]$  
+>   $a_3 = [1]$  
+>   $a_4 = [3]$
+> * $ϕ_1(t) = \frac{1}{\sqrt{T}} \; \{0<t<T\}$
+>
+> The sequence of symbols is processed as follows:
+>
+> ```mermaid
+> %%{init: {'forceLegacyMathML':'true'} }%%
+> flowchart LR
+> B0(("00")) --> b1(("$$b_1$$")) --> a1(("-3"))
+> B1(("11")) --> b4(("$$b_4$$")) --> a4(("&nbsp;3"))
+> B2(("01")) --> b2(("$$b_2$$")) --> a2(("-1"))
+> B3(("10")) --> b3(("$$b_3$$")) --> a3(("&nbsp;1"))
+> ```
+>
+> Then, the signal transmitted is:
+>
+> $$
+> \begin{aligned}
+> s(t) &= \sum_{j=1}^1A_j[0] ϕ_j(t) + \sum_{j)1}^1 A_j[1] ϕ_j(t - T) + \dots \\
+> &= -3 · ϕ_i(t) + 3 · ϕ_i(t - T) - 1 · ϕ_i(t - 2T) + 1 · ϕ_i(t - 3T)
+> \end{aligned}
+> $$
 
 ## Transmission pipeline
 
