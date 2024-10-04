@@ -1,4 +1,4 @@
-# Chapter 2: Linera modulations
+# Chapter 2: Linear modulations
 
 * Baseband modulations
 
