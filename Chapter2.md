@@ -1,4 +1,10 @@
-# Chapter 2: Linear modulations
+## Digital Communications
+
+# Chapter 2: Linear modulations - Notes
+
+*Academic year 2024-2025*  
+
+---
 
 * Baseband modulations
 
