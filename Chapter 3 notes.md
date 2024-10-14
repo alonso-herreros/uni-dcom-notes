@@ -175,9 +175,24 @@ $$
 > the lowest metric.
 >
 > | $A[0]$ | $A[1]$ | $A[2]$ | $A[3]$ | $o[0]$ | $o[1]$ | $o[2]$ | $o[3]$ | $o[4]$ | Likelihood metric |
-> | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :---------------: |
-> |   +1   |   +1   |   +1   |   +1   |  +1.5  |  +1.5  |  +1.5  |  +1.5  |  +1.5  |       18.25       |
-> |   -1   |   +1   |   +1   |   +1   |  -0.5  |  +0.5  |  +1.5  |  +1.5  |  +1.5  |     $\vdots$      |
+> | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--------------: |
+> | +1 | +1 | +1 | +1 | +1.5 | +1.5 | +1.5 | +1.5 | +1.5 |  18.25 |
+> | +1 | +1 | +1 | +1 | +1.5 | +1.5 | +1.5 | +1.5 | +1.5 | -18.25 |
+> | -1 | +1 | +1 | +1 | -0.5 | +0.5 | +1.5 | +1.5 | +1.5 | -15.45 |
+> | +1 | -1 | +1 | +1 | +1.5 | -0.5 | +0.5 | +1.5 | +1.5 | -12.85 |
+> | -1 | -1 | +1 | +1 | -0.5 | -1.5 | +0.5 | +1.5 | +1.5 | -14.05 |
+> | +1 | +1 | -1 | +1 | +1.5 | +1.5 | -0.5 | +0.5 | +1.5 | -11.25 |
+> | -1 | +1 | -1 | +1 | -0.5 | +0.5 | -0.5 | +0.5 | +1.5 |   8.45 |
+> | +1 | -1 | -1 | +1 | +1.5 | -0.5 | -1.5 | +0.5 | +1.5 |   9.85 |
+> | -1 | -1 | -1 | +1 | -0.5 | -1.5 | -1.5 | +0.5 | +1.5 | -11.05 |
+> | +1 | +1 | +1 | -1 | +1.5 | +1.5 | +1.5 | -0.5 | +0.5 |   8.05 |
+> | -1 | +1 | +1 | -1 | -0.5 | +0.5 | +1.5 | -0.5 | +0.5 |   5.25 |
+> | +1 | -1 | +1 | -1 | +1.5 | -0.5 | +0.5 | -0.5 | +0.5 |   2.65 |
+> | -1 | -1 | +1 | -1 | -0.5 | -1.5 | +0.5 | -0.5 | +0.5 |   3.85 |
+> | +1 | +1 | -1 | -1 | +1.5 | +1.5 | -0.5 | -1.5 | +0.5 |   5.05 |
+> | -1 | +1 | -1 | -1 | -0.5 | +0.5 | -0.5 | -1.5 | +0.5 |   2.25 |
+> | +1 | -1 | -1 | -1 | +1.5 | -0.5 | -1.5 | -1.5 | +0.5 |   3.65 |
+> | -1 | -1 | -1 | -1 | -0.5 | -1.5 | -1.5 | -1.5 | +0.5 |   4.85 |
 
 In order to make this large number of calculations more manageable, we can use the following
 approach, looking at the sequence of symbols as a shifting register, where the output is a
@@ -246,3 +261,98 @@ symbol applied to the state, each column is a sample, and each path is a possibl
 graph LR
 
 ```
+
+Furthermore, using a Trellis diagram, we can have a temporal representation of this state diagram,
+where each node is a state, each branch is a symbol applied to the state, each column is the set of,
+possible states at a given index, and each path is a possible sequence.
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+subgraph n0 n["$$ψ[n=0]$$"]
+    s0_1(("&nbsp;1"))
+    s0_1_(("-1"))
+end
+subgraph n1 n["$$ψ[n=1]$$"]
+    s1_1(("&nbsp;1"))
+    s1_1_(("-1"))
+end
+
+s0_1 -- "1 / +1.5" --> s1_1
+s0_1 -- "-1 / -0.5" --> s1_1_
+s0_1_ -- "1 / +0.5" --> s1_1
+s0_1_ -- "-1 / -1.5" --> s1_1_
+```
+
+Let's see this diagram in the case where $L_p = 2$, which gives us 4 possible states.
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+subgraph s11 ["&nbsp;1, 1&nbsp;"]
+    %% s_11(["&nbsp;1, 1&nbsp;"])
+    s0_11((" "))
+    s1_11((" "))
+end
+subgraph s01 ["-1, 1&nbsp;"]
+    %% s_01(["-1, 1&nbsp;"])
+    s0_01((" "))
+    s1_01((" "))
+end
+subgraph s10 ["&nbsp;1, -1"]
+    %% s_10(["&nbsp;1, -1"])
+    s0_10((" "))
+    s1_10((" "))
+end
+subgraph s00 ["-1, -1"]
+    %% s_00(["-1, -1"])
+    s0_00((" "))
+    s1_00((" "))
+end
+
+s0_11 -- " 1 / +1.75" --> s1_11
+s0_11 -- "-1 / -0.25" --> s1_01
+s0_01 -- " 1 / +0.75" --> s1_10
+s0_01 -- "-1 / -1.75" --> s1_00
+s0_10 -- " 1 / +1.25" --> s1_11
+s0_10 -- "-1 / -0.75" --> s1_01
+s0_00 -- " 1 / +0.25" --> s1_10
+s0_00 -- "-1 / -1.75" --> s1_00
+```
+
+Let's see an example for $L_p = 1$ again, but with the following sequence:
+
+$$
+\bar{A} = \{-1, 1, -1, -1\}
+$$
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+subgraph s1 ["&nbsp;1&nbsp;"]
+    %% s_11(["&nbsp;1, 1&nbsp;"])
+    s0_1((" ")) ~~~ s1_1((" "))
+    s1_1 ~~~ s2_1((" "))
+    s2_1 ~~~ s3_1((" "))
+    s3_1 ~~~ s4_1((" "))
+end
+subgraph s0 ["-1&nbsp;"]
+    %% s_01(["-1, 1&nbsp;"])
+    s0_0((" ")) ~~~ s1_0((" "))
+    s1_0 ~~~ s2_0((" "))
+    s2_0 ~~~ s3_0((" "))
+    s3_0 ~~~ s4_0((" "))
+end
+
+s0_1 -- "-1 / -0.5" --> s1_0
+s1_0 -- " 1 / +0.5" --> s2_1
+s2_1 -- "-1 / -1.5" --> s3_0
+s3_0 -- "-1 / -1.5" --> s4_0
+```
+
+That's how it looks when we know the sequence beforehand. But the case is that we usually don't, and
+we have to determine the most likely one given an output. Say we have the following output:
+
+$$
+\bar{q} = \{0.5, -0.4, 0.1, -1.7, 0.3\}
+$$
