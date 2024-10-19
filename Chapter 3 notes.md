@@ -1,4 +1,4 @@
-[## Digital Communications
+## Digital Communications
 
 # Chapter 3 - Notes
 
