@@ -356,3 +356,149 @@ we have to determine the most likely one given an output. Say we have the follow
 $$
 \bar{q} = \{0.5, -0.4, 0.1, -1.7, 0.3\}
 $$
+
+## Equalizer
+
+So far, we've seen two options for a detector:
+
+* **SBSD**: Symbol-by-symbol detector, which is only acceptable when the channel
+  has no ISI. In other cases, its performance is very poor.
+* **MLSD**: Maximum Likelihood Sequence Detector, which is the optimum detector
+  for channels with ISI. However, it is very costly.
+
+We'll settle for a middle ground: the **Equalizer**. This is a suboptimal
+detector that is less costly than the MLSD, but more efficient than the SBSD.
+There are several ways of implementing an equalizer:
+
+* Linear: modeled as a linear filter
+* Non-linear equalizer: might include feedback after the decision (DFE)
+* Other: adaptive, machine learning, etc.
+
+### Linear Equalizer
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+graph LR
+A(["$$A[n]$$"])
+dc["$$p[n]$$"]
+dn(["z[n]"]) --> nsum(("$$+$$"))
+
+subgraph equalizer ["Linear equalizer"]
+    eq["$$w[n]$$"]
+end
+
+dec["SBSD"]
+est(["$$\hat{A}[n-d]$$"])
+
+A --> dc --"o[n]"---> nsum --"q[n]"--> eq --"u[n]"--> dec --> est
+```
+
+We have two objectives:
+
+* To minimize the ISI
+* To minimize the noise
+
+We're mostly interested in the the new output $u[n]$, which is the output of the
+equalizer. Its definition is as follows
+
+$$
+\begin{aligned}
+    u[n] &≐ q[n]*w[n] \\
+    &= A[n] * \underbrace{p[n] * w[n]}_{c[n]} + \underbrace{z[n] * w[n]}_{z'[n]} \\
+    &= ∑_k c[k] A[n-k] + z'[n] \\
+    &= c[d] A[n-d] +
+        \underbrace{\underbrace{∑_{k≠d} c[k] A[n-k]}_{\text{residual ISI}} + z'[n]}_{e_d[n]}
+\end{aligned}
+$$
+
+Our perfect $w[n]$ is one such that:
+
+1. $\text{ISI} = 0$ (Zero-forcing equalizer)
+2. Minimize total error: $e_d[n] ⇊$
+    * It is not possible to eliminate the noise.
+    * Since noise is a random variable: minimize $\mathbb E \{|e_d[n]|^2\}$
+
+#### Condition 1: Zero-forcing equalizer
+
+The zero-forcing equalizer is one such that the residual ISI is zero:
+
+$$
+∑_{k≠d} c[k] A[n-k] = 0 \\
+\Uparrow \\
+c[k] = 0 ∀ k ≠ d \\\
+\Updownarrow \\
+c[k] ∝ δ[k-d]
+$$
+
+#### C1. Implementation 1: unconstrained ZF equalizer
+
+Let us take a shot at solving that.
+
+$$
+c[n] = p[n] * w[n] ∝ δ[n-d] \\
+$$
+
+How do you solve for $w[n]$? Don't even try. Instead, solve it in the frequency
+domain:
+
+$$
+C(e^{jw}) = P(e^{jω}) W(e^{jω}) = e^{-jωd} \\
+\boxed{W_{\text{uZF}}(e^{jω}) = \frac{e^{jωd}}{P(e^{jω})}}
+$$
+
+We could then take the inverse Fourier transform to get $w[n]$. Due to the fact
+that we didn't take any constraints into account, this equalizer is called an
+**unconstrained ZF equalizer**
+
+#### C1. Implementation 2: constrained ZF equalizer
+
+If the unconstrained ZF equalizer were to have an infinite number of
+coefficients, we may not be able to implement it. In this case, we will
+constrain our search to a filter $w[n]$ with a finite number of coefficients,
+$L_w + 1$
+
+$$
+w[n] = w[0] δ[n] + w[1] δ[n-1] + … + w[L_w] δ[n-L_w]
+$$
+
+Keep in mind that we are still for a zero-forcing equalizer:
+
+$$
+\begin{aligned}
+    c[n] &= p[n] * w[n] &∝ δ[n-d] \\
+    &= ∑_{k=0}^{L_p} p[k] w[n-k]
+\end{aligned}
+$$
+
+Let's expand that sum
+
+$$
+\begin{aligned}
+    && c[0] &= w[0] p[0] \\
+    && c[1] &= w[0] p[1] + w[1] p[0] \\
+    && c[2] &= w[0] p[2] + w[1] p[1] + w[2] p[0] \\
+    && \vdots \\
+    && c[L_p + L_w] &= w[L_w] p[L_p] \\
+\end{aligned}
+$$
+
+We'll write this as system of equations, forcing all of tho coefficients to be
+
+$$
+\begin{bmatrix}
+    c[0] \\
+    c[1] \\
+    ⋮ \\
+    c[L_p + L_w]
+\end{bmatrix} = \begin{bmatrix}
+    p[0] & 0 & 0 & \cdots & 0 \\
+    p[1] & p[0] & 0 & \cdots & 0 \\
+    ⋮ & ⋮ & ⋮ & ⋱ & ⋮ \\
+    p[L_p] & p[L_p-1] & p[L_p-2] & \cdots & p[0]
+\end{bmatrix} \begin{bmatrix}
+    w[0] \\
+    w[1] \\
+    ⋮ \\
+    w[L_w]
+\end{bmatrix}
+$$
