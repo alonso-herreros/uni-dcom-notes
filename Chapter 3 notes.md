@@ -477,7 +477,7 @@ $$
     && c[0] &= w[0] p[0] \\
     && c[1] &= w[0] p[1] + w[1] p[0] \\
     && c[2] &= w[0] p[2] + w[1] p[1] + w[2] p[0] \\
-    && \vdots \\
+    && &⋮ \\
     && c[L_p + L_w] &= w[L_w] p[L_p] \\
 \end{aligned}
 $$
@@ -489,16 +489,149 @@ $$
     c[0] \\
     c[1] \\
     ⋮ \\
+    c[d] \\
+    ⋮ \\
     c[L_p + L_w]
-\end{bmatrix} = \begin{bmatrix}
-    p[0] & 0 & 0 & \cdots & 0 \\
-    p[1] & p[0] & 0 & \cdots & 0 \\
-    ⋮ & ⋮ & ⋮ & ⋱ & ⋮ \\
-    p[L_p] & p[L_p-1] & p[L_p-2] & \cdots & p[0]
+\end{bmatrix}
+=
+\begin{bmatrix}
+    p[0]   & 0        & 0        & \cdots & 0 \\
+    p[1]   & p[0]     & 0        & \cdots & 0 \\
+    \vdots & \vdots   & \vdots   & \ddots & \vdots \\
+    p[L_p] & p[L_p-1] & p[L_p-2] & \cdots & p[0] \\
+    0      & p[L_p]   & p[L_p-1] & \cdots & p[1] \\
+    \vdots & \vdots   & \vdots   & \ddots & \vdots \\
+    0      & 0        & 0        & \cdots & p[L_p] \\
 \end{bmatrix} \begin{bmatrix}
     w[0] \\
     w[1] \\
     ⋮ \\
     w[L_w]
 \end{bmatrix}
+$$
+
+We are interested in solving for $w[n]$, which is done by taking the
+pseudoinverse of the $\bar{P\bar{}}$ matrix
+
+$$
+\begin{aligned}
+    \bar{C}_d &= \bar{\bar{P}} \bar{W}_{ZF} \\
+    \bar{W}_{ZF} &= \text{pinv}(\bar{\bar{P}}) \bar{C}_d
+\end{aligned}
+$$
+
+Let's see which of those are known.
+
+We have the following condition:
+
+$$
+c[n] = δ[n-d] \\
+$$
+
+Therefore,
+
+$$
+\bar{C}_d =
+\begin{bmatrix}
+    c[0] \\
+    c[1] \\
+    ⋮ \\
+    c[d] \\
+    ⋮ \\
+    c[L_p + L_w]
+\end{bmatrix}
+=
+\begin{bmatrix}
+    0 \\
+    0 \\
+    ⋮ \\
+    1 \\
+    ⋮ \\
+    0
+\end{bmatrix}
+$$
+
+#### Condition 2: MMSE equalizer
+
+As before, we can do this in a constrained and unconstrained way.
+
+#### C2. Implementation 1: unconstrained MMSE equalizer
+
+$$
+W_{\text{uMMSE}} (e^{jω}) = \frac{P^* e^{-jωd}}{P^*(e^{jω}) P(e^{jω}) + σ_z^2}
+$$
+
+#### C2. Implementation 2: constrained MMSE equalizer
+
+<!-- TODO: ?? -->
+
+### Probability of error
+
+We have the following expression for the sequence at the output, $u[n]$
+
+$$
+\begin{aligned}
+    u[n] &= c[d]A[n-d] + ∑_{k≠d} c[k] A[n-k] + z'[n] \\
+    &= c[d]A[n-d] + e[n]
+\end{aligned}
+$$
+
+We can approximate the probability of error as
+
+$$
+P_e ≈ Q\left(\frac{|c[d]| d_{\min}^{A[n-d]}}{2σ_{\text{error}}}\right)
+$$
+
+#### Zero-forcing unconstrained equalizer
+
+$$
+\begin{aligned}
+    δ[n-d] = c[n] &= p[n] * w[n] \\
+    u[n] &= A[n-d] + z[n] * w[n] \\
+    &= A[n-d] + z'[n]
+\end{aligned}
+$$
+
+We're interested in the noise power
+
+$$
+\begin{aligned}
+    S_{z'}(e^{jw}) &= S_z(e^{jw}) |W_{\text{uZF}}(e^{jw})|^2 \\
+    &= S_z(e^{jw}) \left|\frac{e^{jwd}}{P(e^{jw})}\right|^2 \\
+\end{aligned}
+$$
+
+And from there, we can get $σ_{z'}^2$
+
+$$
+\begin{aligned}
+    σ_{z'}^2 &= \frac{1}{2π} ∫_{-π}^π S_{z'}(e^{jw}) dw \\
+    &= \frac{σ_z^2}{2π} ∫_{-π}^π \left|\frac{1}{P(e^{jw})}\right|^2 dw \\
+\end{aligned}
+$$
+
+#### MMSE unconstrained equalizer
+
+$$
+\begin{aligned}
+    σ_{\text{MMSE}}^2 = \frac{σ_z^2}{2π} ∫_{-π}^π \frac{1}{|P(e^{jw})|^2 + \frac{σ_z^2}{E_s}} dω
+\end{aligned}
+$$
+
+#### ZF or MMSE constrained equalizer
+
+$$
+u[n] = c[d] A[n-d] + ∑_{k≠d} c[k] A[n-k] + z'[n]
+$$
+
+$$
+σ_{\text{ISI}}^2 = ∑_{k=0}^{L_p+L_w} |c[k]|^2 E_s
+$$
+
+$$
+σ_{z'}^2 = σ_z^2 ∑_{k=0}^{L_w} |w[k]|^2
+$$
+
+$$
+P_e ≈ Q\left(\frac{|c[d]| d_{\min}^{A[n-d]}}{2 \sqrt{σ_{\text{ISI}}^2 + σ_{z'}^2}}\right)
 $$
