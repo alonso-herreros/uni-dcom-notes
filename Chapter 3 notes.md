@@ -558,7 +558,10 @@ As before, we can do this in a constrained and unconstrained way.
 #### C2. Implementation 1: unconstrained MMSE equalizer
 
 $$
-W_{\text{uMMSE}} (e^{jω}) = \frac{P^* e^{-jωd}}{P^*(e^{jω}) P(e^{jω}) + σ_z^2}
+\begin{aligned}
+    W_{\text{uMMSE}} (e^{jω}) &= \frac{e^{-jωd} P^*(e^{jω})}{P^*(e^{jω}) P(e^{jω}) + σ_z^2} \\
+    &=\frac{e^{-jωd} P^*(e^{jω})}{|P(e^{jω})|^2 + \frac{σ_z^2}{E_s}}
+\end{aligned}
 $$
 
 #### C2. Implementation 2: constrained MMSE equalizer
