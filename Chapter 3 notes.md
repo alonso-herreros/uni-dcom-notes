@@ -374,7 +374,7 @@ There are several ways of implementing an equalizer:
 * Non-linear equalizer: might include feedback after the decision (DFE)
 * Other: adaptive, machine learning, etc.
 
-### Linear Equalizer
+We'll focus on a linear model
 
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
@@ -418,7 +418,7 @@ Our perfect $w[n]$ is one such that:
     * It is not possible to eliminate the noise.
     * Since noise is a random variable: minimize $\mathbb E \{|e_d[n]|^2\}$
 
-#### Condition 1: Zero-forcing equalizer
+### Zero-forcing equalizer
 
 The zero-forcing equalizer is one such that the residual ISI is zero:
 
@@ -551,7 +551,7 @@ $$
 \end{bmatrix}
 $$
 
-#### Condition 2: MMSE equalizer
+### MMSE equalizer
 
 As before, we can do this in a constrained and unconstrained way.
 
