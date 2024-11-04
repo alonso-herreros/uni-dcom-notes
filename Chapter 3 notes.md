@@ -1,6 +1,6 @@
 ## Digital Communications <!-- omit in toc -->
 
-# Chapter 3 - Notes
+# Chapter 3: Intersymbol Interference
 
 *Academic year 2024-2025*  
 

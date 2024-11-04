@@ -1,6 +1,6 @@
 ## Digital Communications <!-- omit in toc -->
 
-# Chapter 2: Linear modulations - Notes
+# Chapter 2: Linear modulations
 
 *Academic year 2024-2025*  
 
@@ -10,9 +10,6 @@
     * [Baseband PAM spectrum](#baseband-pam-spectrum)
     * [Nyquist criterion for bandlimited channels](#nyquist-criterion-for-bandlimited-channels)
     * [Nyquist criteria for zero ISI](#nyquist-criteria-for-zero-isi)
-        * [Nyquist criteria in the discrete time domain](#nyquist-criteria-in-the-discrete-time-domain)
-        * [Case 1: $h(t) = δ(t)$](#case-1-ht--δt)
-        * [Case 2: $h(t) ≠ δ(t)$](#case-2-ht--δt)
     * [Real communication systems](#real-communication-systems)
 
 ---
