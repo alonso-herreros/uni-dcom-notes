@@ -1,8 +1,19 @@
-## Digital Communications
+## Digital Communications <!-- omit in toc -->
 
 # Chapter 3 - Notes
 
 *Academic year 2024-2025*  
+
+---
+
+### Table of Contents
+
+* [Channels with ISI](#channels-with-isi)
+* [Maximum Likelihood Sequence Detector](#maximum-likelihood-sequence-detector)
+* [Equalizer](#equalizer)
+    * [Zero-forcing equalizer](#zero-forcing-equalizer)
+    * [MMSE equalizer](#mmse-equalizer)
+    * [Probability of error](#probability-of-error)
 
 ---
 
