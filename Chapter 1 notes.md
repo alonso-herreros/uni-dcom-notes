@@ -1,8 +1,26 @@
 ---
+title: Digital Communications - Chapter 1. Introduction
 date: 2024-09-12
 ---
 
+## Digital Communications <!-- omit in toc -->
+
 # Chapter 1. Introduction
+
+*Academic year 2024-25*
+
+---
+
+### Table of Contents
+
+* [Basic concepts](#basic-concepts)
+* [Noise](#noise)
+* [Transmission pipeline](#transmission-pipeline)
+* [Glossary](#glossary)
+
+---
+
+## Basic concepts
 
 * Baseband vs Bandpass Channels
 * Single symbol Tx vs multi-symbol Tx
