@@ -50,8 +50,6 @@ We have several options:
 
 ## Spread Spectrum (SS)
 
-### Modulation/Transmission
-
 Take the case where we use an RCF filter to provive a symbol rate of $R_s$. Our
 occupied bandwidth would be:
 
@@ -67,7 +65,7 @@ $$
 NR_s(1+α)
 $$
 
-Let's see how this affect the time domain.
+Let's see how this affects the time domain:
 
 Let our previous modulation be one that transmits one symbol every $T$ seconds.
 Since we're multiplying the bandwidth by $N$, we're transmitting at a frequency
@@ -76,7 +74,9 @@ $T/N$ seconds. This period will be called **chip time** $T_c$.
 
 Since we're not changing the symbol rate, we'll actually use the whole $T$
 seconds to transmit the same information, but we'll be transmitting it $N$
-times.
+times in different ways.
+
+### Shaping and modulation
 
 The way we do this is by defining a shaping filter $g(t)$ in the following way:
 
@@ -96,7 +96,7 @@ Let's give names to some of these new terms:
   The time period in which we transmit the same information $N$ times.
 
 **Shaping filter at chip time**
-: $g_c(t)$  
+: $g_c(t) ∈ \real$  
   The shaping filter that we'll use to transmit the signal in the chip time.
   This will usually be a square root raised cosine filter.
 
@@ -104,13 +104,18 @@ Let's give names to some of these new terms:
 : $\{x[m]\}_{m=0}^{N-1} ,\; x[n] ∈ \Complex$  
     The sequence of coefficients that we'll use to multiply the chip signal.
 
+> **Note**
+>
+> We'll use the index $n$ for regular time ($nT$), and the index $m$ for chip time
+> ($mT_c$).
+
 Our shaped signal $s(t)$ will be:
 
 $$
 \begin{aligned}
     s(t) &= ∑_n A[n] g(t-nT) \\
     &= ∑_n A[n] ∑_{l=0}^{N-1} x[l] g_c(t-lT_c - nT) \\
-    &= ∑_n A[n] ∑_{m=nN}^{\mathclap{(n+1)N-1}} x[m-nN] g_c(t-mT_c) \\
+    &\boxed{= ∑_n A[n] ∑_{m=nN}^{\mathclap{(n+1)N-1}} x[m-nN] g_c(t-mT_c)} \\
 \end{aligned}
 $$
 
@@ -154,9 +159,9 @@ following way
 %%{init: {'forceLegacyMathML':'true'} }%%
 flowchart LR
 A(["$$A[n]$$"])
-upsample["Upsample by N"]
+upsample["Upsample $$\,\uparrow N$$"]
 repeat["$$w_N[m]$$"]
-x_tilde(["$$\tilde{x}$$"]) --> mult(("$$\times$$"))
+x_tilde(["$$\tilde{x}[n]$$"]) --> mult(("$$\times$$"))
 chip_filter["$$g_c(t)$$"]
 s(["$$s(t)$$"])
 
@@ -188,6 +193,10 @@ w_N[m] = \begin{cases}
     \end{cases}
 $$
 
+Some examples may be found in the adjacent files.
+
+### Bandpass and Transmission
+
 In order to transmit this signal, we'll usually need to move it to bandpass
 
 ```mermaid
@@ -202,19 +211,35 @@ subgraph heq ["$$h_{eq}(t)$$"]
     adder(("$$+$$"))
     carrier_(["$$\sqrt{2}e^{-jω_ct}$$"]) --> bb_mult(("$$\times$$"))
 end
-rcv_filter["$$f(t)$$"]
-q(["$$q(t)$$"])
+r(["$$r(t)$$"])
+%% rcv_filter["$$f(t)$$"]
+%% q(["$$q(t)$$"])
 
 A --> filter --"$$s(t)$$"---> bp_mult
-bp_mult --> real --"$$x(t)$$"--> ch --> adder
-adder --"$$y(t)$$"--> bb_mult --"$$r(t)$$"--> rcv_filter --> q
+bp_mult --> real --"$$x(t)$$"--> ch --> adder --"$$y(t)$$"--> bb_mult
+bb_mult --> r
 
 noise(["$$n(t)$$"]) --> adder
 ```
 
 As previously, we'll simplify the system using an equivalent channel $h_{eq}(t)$
 
-Additionally, we'll always use a matched filter $f(t) = g^*(-t)$
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$s(t)$$"])
+filter["$$g(t)$$"]
+heq["$$h_{eq}(t)$$"]
+noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> adder(("$$+$$"))
+r(["$$r(t)$$"])
+
+A --> filter --"$$s(t)$$"--> heq ---> adder
+adder --> r
+```
+
+### Reception
+
+We'll always use a matched filter $f(t) = g^*(-t)$
 
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
@@ -228,7 +253,7 @@ sampling["Sampling $$\,t=nT$$"]
 q(["$$q[n]$$"])
 
 A --> filter --"$$s(t)$$"--> heq ---> adder
-adder --"$$r(t)$$"--> rcv_filter --"$$q[T]$$"--> sampling --> q
+adder --"$$r(t)$$"--> rcv_filter --"$$q[t]$$"--> sampling --> q
 ```
 
 We can find the expression of the output sequence $q[n]$ as follows:
@@ -236,9 +261,65 @@ We can find the expression of the output sequence $q[n]$ as follows:
 $$
 \begin{aligned}
     q[n] &= (r(t) * f(t))|_{t=nT} \\
-    &= ∑_{m=0}^{N-1} x[m] \big(r(t) * g_c(-(t-mT_c))\big)\Big|_{t=nT} \\
+    &= ∑_{m=0}^{N-1} x^*[m] \big(r(t) * g_c(-(t-mT_c))\big)\Big|_{t=nT} \\
     &= ∑_{m=0}^{N-1} x^*[m] \underbrace{(r(t) * g_c(-t))}_{v(t)}\Big|_{t=nT+mT_c} \\
-    &= ∑_{m=0}^{N-1} x[m] v(nT+mT_c) \Big|_{t=nT + mT_c} \\
-    &= ∑_{m=0}^{N-1} x[m] v[m+nN] \\
+    &= ∑_{m=0}^{N-1} x^*[m] v(t) \Big|_{t=nT + mT_c} \\
+    &\boxed{= ∑_{m=0}^{N-1} x^*[m] v[m+nN]} \\
 \end{aligned}
+$$
+
+We'll model this expression with $v[n]$ as a block diagram
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+r(["$$r[n]$$"])
+rcv_fc["$$g_c(-t)$$"]
+sampling["Sampl. $$\,t=mT_c$$"]
+seq_(["$$\tilde{x}^*[m]$$"]) --> seq_mult(("$$\times$$"))
+rcv_w["$$w_N[-m]$$"]
+downsample["$$\downarrow N$$"]
+q(["$$q[n]$$"])
+
+r --> rcv_fc --"$$v(t)$$"--> sampling --"$$v[m]$$"--> seq_mult
+seq_mult --> rcv_w --> downsample --> q
+```
+
+Let's look at the end-to-end system, from symbol to output sequence
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$A[n]$$"])
+subgraph p ["$$p[n]$$"]
+    upsample["$$\uparrow N$$"]
+    w["$$w_N[m]$$"]
+    seq(["$$\tilde{x}[n]$$"]) --> seq_mult(("$$\times$$"))
+    subgraph d ["$$d(t)$$"]
+        gc["$$g_c(t)$$"]
+        heq["$$h_{eq}(t)$$"]
+        noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> n_add(("$$+$$"))
+        rcv_fc["$$g_c(-t)$$"]
+    end
+    sample["Sampl. $$\,t=mT_c$$"]
+    seq_(["$$\tilde{x}^*[m]$$"])
+    seq__mult(("$$\times$$"))
+    rcv_w["$$w_N[-m]$$"]
+    downsample["$$\downarrow N$$"]
+end
+q(["$$q[n]$$"])
+
+A --> upsample --> w --> seq_mult
+seq_mult --"$$s[m]$$"--> gc --> heq --> n_add --"$$r(t)$$"--> rcv_fc
+rcv_fc --> sample --> seq__mult --> rcv_w --> downsample --> q
+
+seq_ --> seq__mult
+```
+
+$$
+d[m] = d(t) \Big|_{t=mT_c} = g_c(t) * h_{eq}(t) * g_c(-t) \Big|_{t=mT_c}
+$$
+
+$$
+p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
 $$
