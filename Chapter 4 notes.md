@@ -50,6 +50,8 @@ We have several options:
 
 ## Spread Spectrum (SS)
 
+### Modulation/Transmission
+
 Take the case where we use an RCF filter to provive a symbol rate of $R_s$. Our
 occupied bandwidth would be:
 
@@ -81,6 +83,7 @@ The way we do this is by defining a shaping filter $g(t)$ in the following way:
 * Our repeated signal will be $g_c(t)$
 * Each instance of this repeated signal will be multiplied by a coefficient
   $x[m]$
+* Each train of N instances will shape the symbol $A[n]$
 
 $$
 g(t) = ∑_m^{N-1} g_c(t-\frac{T}{N}m)x[m]
@@ -106,8 +109,8 @@ Our shaped signal $s(t)$ will be:
 $$
 \begin{aligned}
     s(t) &= ∑_n A[n] g(t-nT) \\
-    &= ∑_n A[n] ∑_{l=0}^{N-1} x[l] g_c(t-lT -nT_c) \\
-    &= ∑_n A[n] ∑_{m=nN}^{(n+1)N} x[m-nN] g_c(t-mT_c) \\
+    &= ∑_n A[n] ∑_{l=0}^{N-1} x[l] g_c(t-lT_c - nT) \\
+    &= ∑_n A[n] ∑_{m=nN}^{\mathclap{(n+1)N-1}} x[m-nN] g_c(t-mT_c) \\
 \end{aligned}
 $$
 
@@ -127,9 +130,115 @@ Leaving us with
 
 $$
 S_s(jω) = \frac{E_s}{T} |G_c(jω)|^2
-    \underbrace{\left|∑_{l=0}^{N-1} x[l] e^{-jωlT_c}\right|^2}_{S_x(eP{jωT_c})}
+    \underbrace{\left|∑_{l=0}^{N-1} x[l] e^{-jωlT_c}\right|^2}_{S_x(e^{jωT_c})}
 $$
 
 Where $S_x(e^{jωT_c})$ is the PSD of the spreading sequence. We'll try to make
 it as white as possible, so that the PSD of the transmitted signal is flat as
 well.
+
+We can define an infinite spreading sequence, which will be periodic with period
+$N$:
+
+$$
+\begin{aligned}
+\tilde x[n] &= x[n \mod N] \\
+&= x[0], x[1], …, x[N-1], x[0], x[1], …
+\end{aligned}
+$$
+
+We can model the construction of the signal $s(t)$ as a block diagram in the
+following way
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$A[n]$$"])
+upsample["Upsample by N"]
+repeat["$$w_N[m]$$"]
+x_tilde(["$$\tilde{x}$$"]) --> mult(("$$\times$$"))
+chip_filter["$$g_c(t)$$"]
+s(["$$s(t)$$"])
+
+A --> upsample --"$$A'[n]$$"--> repeat --"$$A''[n]$$"--> mult
+mult -- "$$s[m]$$" --> chip_filter --> s
+```
+
+Where
+
+$$
+A[n] = \{A[0], A[1], …\}
+$$
+
+$$
+A'[n] = \begin{cases}
+    A\left[\frac{n}{N}\right] & \text{ if } n \mod N = 0 \\
+    0 & \text{ otherwise}
+\end{cases}
+$$
+
+$$
+A''[n] = A\left[\left⌊\frac{n}{N}\right⌋\right]
+$$
+
+$$
+w_N[m] = \begin{cases}
+    1 & \text{ if } 0≤m<N \\
+    0 & \text{ otherwise}
+    \end{cases}
+$$
+
+In order to transmit this signal, we'll usually need to move it to bandpass
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$s(t)$$"])
+filter["$$g(t)$$"]
+subgraph heq ["$$h_{eq}(t)$$"]
+    carrier(["$$\sqrt{2}e^{jω_ct}$$"]) --> bp_mult(("$$\times$$"))
+    real["$$\Re\{⋅\}$$"]
+    ch["$$h(t)$$"]
+    adder(("$$+$$"))
+    carrier_(["$$\sqrt{2}e^{-jω_ct}$$"]) --> bb_mult(("$$\times$$"))
+end
+rcv_filter["$$f(t)$$"]
+q(["$$q(t)$$"])
+
+A --> filter --"$$s(t)$$"---> bp_mult
+bp_mult --> real --"$$x(t)$$"--> ch --> adder
+adder --"$$y(t)$$"--> bb_mult --"$$r(t)$$"--> rcv_filter --> q
+
+noise(["$$n(t)$$"]) --> adder
+```
+
+As previously, we'll simplify the system using an equivalent channel $h_{eq}(t)$
+
+Additionally, we'll always use a matched filter $f(t) = g^*(-t)$
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$s(t)$$"])
+filter["$$g(t)$$"]
+heq["$$h_{eq}(t)$$"]
+noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> adder(("$$+$$"))
+rcv_filter["$$f(t)$$"]
+sampling["Sampling $$\,t=nT$$"]
+q(["$$q[n]$$"])
+
+A --> filter --"$$s(t)$$"--> heq ---> adder
+adder --"$$r(t)$$"--> rcv_filter --"$$q[T]$$"--> sampling --> q
+```
+
+We can find the expression of the output sequence $q[n]$ as follows:
+
+$$
+\begin{aligned}
+    q[n] &= (r(t) * f(t))|_{t=nT} \\
+    &= ∑_{m=0}^{N-1} x[m] \big(r(t) * g_c(-(t-mT_c))\big)\Big|_{t=nT} \\
+    &= ∑_{m=0}^{N-1} x^*[m] \underbrace{(r(t) * g_c(-t))}_{v(t)}\Big|_{t=nT+mT_c} \\
+    &= ∑_{m=0}^{N-1} x[m] v(nT+mT_c) \Big|_{t=nT + mT_c} \\
+    &= ∑_{m=0}^{N-1} x[m] v[m+nN] \\
+\end{aligned}
+$$
