@@ -76,8 +76,6 @@ Since we're not changing the symbol rate, we'll actually use the whole $T$
 seconds to transmit the same information, but we'll be transmitting it $N$
 times in different ways.
 
-### Shaping and modulation
-
 The way we do this is by defining a shaping filter $g(t)$ in the following way:
 
 * Our repeated signal will be $g_c(t)$
@@ -89,7 +87,7 @@ $$
 g(t) = ∑_m^{N-1} g_c(t-\frac{T}{N}m)x[m]
 $$
 
-Let's give names to some of these new terms:
+Let's give names to some of our new terms:
 
 **Chip time**
 : $T_c = \frac{T}{N}$  
@@ -106,8 +104,10 @@ Let's give names to some of these new terms:
 
 > **Note**
 >
-> We'll use the index $n$ for regular time ($nT$), and the index $m$ for chip time
-> ($mT_c$).
+> We'll use the index $n$ for regular time ($nT$), and the index $m$ for chip
+> time ($mT_c$).
+
+### Shaping and modulation
 
 Our shaped signal $s(t)$ will be:
 
@@ -202,7 +202,7 @@ In order to transmit this signal, we'll usually need to move it to bandpass
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
 flowchart LR
-A(["$$s(t)$$"])
+A(["$$A[n]$$"])
 filter["$$g(t)$$"]
 subgraph heq ["$$h_{eq}(t)$$"]
     carrier(["$$\sqrt{2}e^{jω_ct}$$"]) --> bp_mult(("$$\times$$"))
@@ -227,7 +227,7 @@ As previously, we'll simplify the system using an equivalent channel $h_{eq}(t)$
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
 flowchart LR
-A(["$$s(t)$$"])
+A(["$$A[n]$$"])
 filter["$$g(t)$$"]
 heq["$$h_{eq}(t)$$"]
 noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> adder(("$$+$$"))
@@ -244,7 +244,7 @@ We'll always use a matched filter $f(t) = g^*(-t)$
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
 flowchart LR
-A(["$$s(t)$$"])
+A(["$$A[n]$$"])
 filter["$$g(t)$$"]
 heq["$$h_{eq}(t)$$"]
 noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> adder(("$$+$$"))
@@ -285,7 +285,9 @@ r --> rcv_fc --"$$v(t)$$"--> sampling --"$$v[m]$$"--> seq_mult
 seq_mult --> rcv_w --> downsample --> q
 ```
 
-Let's look at the end-to-end system, from symbol to output sequence
+### Summary
+
+Let's look at the end-to-end system, from input to output symbol sequence
 
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
@@ -295,23 +297,29 @@ subgraph p ["$$p[n]$$"]
     upsample["$$\uparrow N$$"]
     w["$$w_N[m]$$"]
     seq(["$$\tilde{x}[n]$$"]) --> seq_mult(("$$\times$$"))
-    subgraph d ["$$d(t)$$"]
-        gc["$$g_c(t)$$"]
-        heq["$$h_{eq}(t)$$"]
-        noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> n_add(("$$+$$"))
-        rcv_fc["$$g_c(-t)$$"]
+
+    subgraph d_ ["d[n]"]
+        subgraph d ["$$d(t)$$"]
+            gc["$$g_c(t)$$"]
+            heq["$$h_{eq}(t)$$"]
+            n_add(("$$+$$"))
+            rcv_fc["$$g_c(-t)$$"]
+        end
+        sample["Sampl. $$\,t=mT_c$$"]
     end
-    sample["Sampl. $$\,t=mT_c$$"]
+
     seq_(["$$\tilde{x}^*[m]$$"])
     seq__mult(("$$\times$$"))
     rcv_w["$$w_N[-m]$$"]
     downsample["$$\downarrow N$$"]
 end
+noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> n_add
 q(["$$q[n]$$"])
 
 A --> upsample --> w --> seq_mult
-seq_mult --"$$s[m]$$"--> gc --> heq --> n_add --"$$r(t)$$"--> rcv_fc
-rcv_fc --> sample --> seq__mult --> rcv_w --> downsample --> q
+seq_mult --"$$s[m]$$"--> gc --> heq --> n_add --> rcv_fc
+rcv_fc --"$$v(t)$$"--> sample
+sample --"$$v[m]$$"--> seq__mult --> rcv_w --> downsample --> q
 
 seq_ --> seq__mult
 ```
@@ -323,3 +331,60 @@ $$
 $$
 p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
 $$
+
+### Implementation
+
+When physically implementing the analog shaping filter $g(t)$, which modulates a
+digitally generated sequence, we run into problems due to the fact that the
+spreading sequence **is not always constant**, but may change for different
+connections. Since physically changing the filter every time is not practical,
+we'll try to split the filter into a controllable digital part and a fixed
+analog part.
+
+We can visualize this digital-analog split in one of the block diagrams from
+before
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+subgraph Digital
+    A(["$$A[n]$$"])
+    upsample["$$\uparrow N$$"]
+    repeat["$$w_N[m]$$"]
+    x_tilde(["$$\tilde{x}[n]$$"]) --> mult(("$$\times$$"))
+end
+
+subgraph Analog
+    chip_filter["$$g_c(t)$$"]
+    s(["$$s(t)$$"])
+end
+
+A --> upsample --> repeat --> mult
+mult -- "$$s[m]$$" --> chip_filter --> s
+```
+
+The global transformation from $A[n]$ to $s(t)$ would be the combined shaping
+filter $g(t)$
+
+A similar split can be done for the receiving end, reusing one of the previous
+block diagrams
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+subgraph Analog
+    r(["$$r[n]$$"])
+    rcv_fc["$$g_c(-t)$$"]
+    sampling["Sampl. $$\,t=mT_c$$"]
+end
+
+subgraph Digital
+    seq_(["$$\tilde{x}^*[m]$$"]) --> seq_mult(("$$\times$$"))
+    rcv_w["$$w_N[-m]$$"]
+    downsample["$$\downarrow N$$"]
+    q(["$$q[n]$$"])
+end
+
+r --> rcv_fc --"$$v(t)$$"--> sampling --"$$v[m]$$"---> seq_mult
+seq_mult --> rcv_w --> downsample --> q
+```
