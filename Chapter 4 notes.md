@@ -285,53 +285,6 @@ r --> rcv_fc --"$$v(t)$$"--> sampling --"$$v[m]$$"--> seq_mult
 seq_mult --> rcv_w --> downsample --> q
 ```
 
-### Summary
-
-Let's look at the end-to-end system, from input to output symbol sequence
-
-```mermaid
-%%{init: {'forceLegacyMathML':'true'} }%%
-flowchart LR
-A(["$$A[n]$$"])
-subgraph p ["$$p[n]$$"]
-    upsample["$$\uparrow N$$"]
-    w["$$w_N[m]$$"]
-    seq(["$$\tilde{x}[n]$$"]) --> seq_mult(("$$\times$$"))
-
-    subgraph d_ ["d[n]"]
-        subgraph d ["$$d(t)$$"]
-            gc["$$g_c(t)$$"]
-            heq["$$h_{eq}(t)$$"]
-            n_add(("$$+$$"))
-            rcv_fc["$$g_c(-t)$$"]
-        end
-        sample["Sampl. $$\,t=mT_c$$"]
-    end
-
-    seq_(["$$\tilde{x}^*[m]$$"])
-    seq__mult(("$$\times$$"))
-    rcv_w["$$w_N[-m]$$"]
-    downsample["$$\downarrow N$$"]
-end
-noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> n_add
-q(["$$q[n]$$"])
-
-A --> upsample --> w --> seq_mult
-seq_mult --"$$s[m]$$"--> gc --> heq --> n_add --> rcv_fc
-rcv_fc --"$$v(t)$$"--> sample
-sample --"$$v[m]$$"--> seq__mult --> rcv_w --> downsample --> q
-
-seq_ --> seq__mult
-```
-
-$$
-d[m] = d(t) \Big|_{t=mT_c} = g_c(t) * h_{eq}(t) * g_c(-t) \Big|_{t=mT_c}
-$$
-
-$$
-p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
-$$
-
 ### Implementation
 
 When physically implementing the analog shaping filter $g(t)$, which modulates a
@@ -388,3 +341,122 @@ end
 r --> rcv_fc --"$$v(t)$$"--> sampling --"$$v[m]$$"---> seq_mult
 seq_mult --> rcv_w --> downsample --> q
 ```
+
+### Summary
+
+Let's look at the end-to-end system, from input to output symbol sequence
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$A[n]$$"])
+subgraph p ["$$p[n]$$"]
+    upsample["$$\uparrow N$$"]
+    w["$$w_N[m]$$"]
+    seq(["$$\tilde{x}[n]$$"]) --> seq_mult(("$$\times$$"))
+
+    subgraph d_ ["d[n]"]
+        subgraph d ["$$d(t)$$"]
+            gc["$$g_c(t)$$"]
+            heq["$$h_{eq}(t)$$"]
+            n_add(("$$+$$"))
+            rcv_fc["$$g_c(-t)$$"]
+        end
+        sample["Sampl. $$\,t=mT_c$$"]
+    end
+
+    seq_(["$$\tilde{x}^*[m]$$"])
+    seq__mult(("$$\times$$"))
+    rcv_w["$$w_N[-m]$$"]
+    downsample["$$\downarrow N$$"]
+end
+noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> n_add
+q(["$$q[n]$$"])
+
+A --> upsample --> w --> seq_mult
+seq_mult --"$$s[m]$$"--> gc --> heq --> n_add --> rcv_fc
+rcv_fc --"$$v(t)$$"--> sample
+sample --"$$v[m]$$"--> seq__mult --> rcv_w --> downsample --> q
+
+seq_ --> seq__mult
+```
+
+$$
+d[m] = d(t) \Big|_{t=mT_c} = g_c(t) * h_{eq}(t) * g_c(-t) \Big|_{t=mT_c}
+$$
+
+$$
+p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
+$$
+
+## Multicarrier modulation
+
+In spread spectrum, we split the shaping filter $g(t)$ in the **time domain**:
+the duration $T$ was split into $N$ parts of equal duration $T_c$. In
+multicarrier modulation, we'll split the available **bandwidth** into $N$
+subbands, and we'll transmit the signal in each of these subbands through
+Orthogonal Frequency Division Multiplexing (**OFDM**).
+
+An OFDM system will consume the sequence $A[n]$ at a higher rate and transmit
+each one of its elements in a different subband, but all in the same period $T$.
+Since it'll be consuming $N$ symbols in a period $T$, the symbol rate is
+
+$$
+R_s^{OFDM} = N R_s
+$$
+
+To keep up with the convention of using $m$ for indexing at $\frac{T}{N}$, we'll
+label the source sequence as $A[m]$.
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+A(["$$A[m]$$"])
+
+subgraph mcdmod ["MC D-mod"]
+    stp["S/P"]
+    g0["$$ϕ_0(t)$$"]
+    g1["$$ϕ_1(t)$$"]
+    gN_1["$$ϕ_{N-1}(t)$$"]
+    sum["$$\sum$$"]
+end
+s(["$$s(t)$$"])
+
+A --> stp
+stp --"$$A_0[n]$$"--> g0
+stp --"$$A_1[n]$$"--> g1
+stp --"$$A_{N-1}[n]$$"--> gN_1
+g0 --"$$s_0(t)$$"--> sum
+g1 --"$$s_1(t)$$"--> sum
+gN_1 --"$$s_{N-1}(t)$$"--> sum
+sum --> s
+```
+
+$$
+s(t) = ∑_{k=0}^{N-1} s_k(t) = ∑_{k=0}^{N-1} A_k[n] ϕ_k(t-nT)
+$$
+
+Assuming the sequences $A_k[n]$ are uncorrelated, the PSD of the transmitted
+signal will be
+
+$$
+S(jω) = ∑_{k=0}^{N-1} S_k(jω) = \frac{1}{T} ∑_{k=0}^{N-1} E_k |ϕ_k(jω)|^2
+$$
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+v(["$$v[m]$$"])
+subgraph mcdmod ["MC D-demod"]
+    stp["<br/>S/P<br/>&nbsp;"]
+    DFT["<br/>DFT<br/>N points"]
+    pts["<br/>P/S<br/>&nbsp;"]
+    dec["Decisor"]
+end
+A_(["$$A[m]$$"])
+
+v --> stp --> DFT --> pts --> dec --> A_
+```
+
+If you take the last $k$ symbols of the sequence $s[m]$, where $k$ is the number
+of deltas in $d[m]$ minus 1, you can remove ISI.
