@@ -1,10 +1,16 @@
+---
+title: Digital Communications - Chapter 2. Linear Modulations
+---
+
 ## Digital Communications <!-- omit in toc -->
 
-# Chapter 2: Linear modulations
+# Chapter 2. Linear modulations
 
 *Academic year 2024-2025*  
 
 ---
+
+### Table of Contents
 
 * [Baseband modulations](#baseband-modulations)
     * [Baseband PAM spectrum](#baseband-pam-spectrum)

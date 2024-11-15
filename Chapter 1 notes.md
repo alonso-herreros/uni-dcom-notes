@@ -1,6 +1,5 @@
 ---
 title: Digital Communications - Chapter 1. Introduction
-date: 2024-09-12
 ---
 
 ## Digital Communications <!-- omit in toc -->
@@ -49,7 +48,7 @@ x(("x(t)")) ---> h["h(t)"] ---> r(("x(t) * h(t)"))
 > **Example** of probability of error
 >
 > Assuming both transmitter and receiver are optimized, assume we send the sequence `0011011010` and
-> receive `1011011011`. THe probaility of error is $P_e = \frac{2}{10} = 20%$
+> receive `1011011011`. The probaility of error is $P_e = \frac{2}{10} = 20%$
 
 ## Noise
 
@@ -66,6 +65,7 @@ line [0, 0, 0, 1, 1, 1, 1, 0, 0, 0]
 -->
 
 ```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
 flowchart LR
 src((Source))
 enc[Encoder]
@@ -74,13 +74,14 @@ h["h(t)"]
 sum((&plus;))
 n(("n(t)"))
 r((Rx))
-src --"bi"--> enc --"ai"--> mod --"si(t)"--> h --> sum --> r
+src --"$$b_i$$"--> enc --"$$a_i$$"--> mod --"$$s_i(t)$$"--> h --> sum --> r
 n --> sum
 ```
 
 * $B$: symbols in binary format
 * $N$: dimension
 * $M$: number of combinations
+* $m$: bits per symbol. $M = 2^m$
 * $\bar{A}$: constellation, symbols in vector format
 
 > **Example**
@@ -253,12 +254,21 @@ src --> src_enc --> ch_enc --> intr -- "$$B_b[l]$$" --> etc
 
 ## Glossary
 
-| Term | Definition |
-| :--- | :--------- |
-| $R_b$ | (bit/s) Bit rate or throughput |
+$R_b$
+: Bit rate or throughput (bit/s)
 
-*[R_b]: (bit/s) Bit rate or throughput
-*[T_b]: (s) Bit time: how long it takes to transmit a bit
-*[T]: (s) Symbol time: how long it takes to transmit a symbol
-*[B(n)]: Sequence of symbols in binary format
-*[A(n)]: Sequence of symbols in vector format
+$T_b$
+: Bit time. How long it takes to transmit a bit (s)
+
+$T$
+: Symbol time or symbol period. How long it takes to transmit a symbol (s)
+
+$B(n)$ or $B_b(l)$
+
+: Sequence of bits transmitted. The first bit is $B(0)$, the second $B(1)$, and
+so on
+
+$A(n)$
+
+: Sequence of symbols transmitted. The first symbol is $A(0)$, the second
+$A(1)$, and so on

@@ -1,6 +1,10 @@
+---
+title: Digital Communications - Chapter 3. Intersymbol Interference
+---
+
 ## Digital Communications <!-- omit in toc -->
 
-# Chapter 3: Intersymbol Interference
+# Chapter 3. Intersymbol Interference
 
 *Academic year 2024-2025*  
 

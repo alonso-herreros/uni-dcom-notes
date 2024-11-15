@@ -1,10 +1,16 @@
+---
+title: Digital Communications - Chapter 4. Multipulse Modulation
+---
+
 ## Digital Communications <!-- omit in toc -->
 
-# Chapter 4: Multipulse Modulation
+# Chapter 4. Multipulse Modulation
 
 *Academic year 2024-2025*  
 
 ---
+
+### Table of Contents
 
 * [Introduction](#introduction)
 * [Spread Spectrum (SS)](#spread-spectrum-ss)
