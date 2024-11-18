@@ -20,6 +20,8 @@ title: Digital Communications - Chapter 4. Multipulse Modulation
     * [Implementation](#implementation)
     * [Summary](#summary)
 * [Multicarrier modulation](#multicarrier-modulation)
+    * [Cyclic prefix](#cyclic-prefix)
+    * [Annex](#annex)
 
 ---
 
@@ -470,5 +472,35 @@ A_(["$$A[m]$$"])
 v --> stp --> DFT --> pts --> dec --> A_
 ```
 
-If you take the last $k$ symbols of the sequence $s[m]$, where $k$ is the number
-of deltas in $d[m]$ minus 1, you can remove ISI.
+### Cyclic prefix
+
+> **Note**: not checked. Use with caution.
+>
+> If you take the last $k$ symbols of the sequence $s[m]$, where $k$ is the
+> number of deltas in $d[m]$ minus 1 (the memory of $d[m]$), and you also put
+> them at the beginning of the sequence, you can remove ISI and ICI.
+
+### Annex
+
+Some formula taken from a lecture:
+
+$$
+\begin{aligned}
+    q_k[n] &= ∑_{i=0}^{N-1} A_i[n] * p_{k,i}[n] + z[n]\\
+    &= A_0[n] * \cancel{p_{k,0}[n]} + … + A_k[n] * p_{k,k}[n] + …
+        + A_{N-1}[n] * \cancel{p_{k,N-1}[n]} \\
+    &\Big\downarrow \; p_{k,i}[n] = 0 ∀ i ≠ k \\
+    &= \frac{N}{T} D[k] \underbrace{A_k[n] * δ[n]}_{A_k[n]} + z[n] \\
+    &= \frac{N}{T} D[k] A_k[n] + z[n] \\
+\end{aligned}
+$$
+
+$$
+SNR = \frac{\left(\frac{N}{T}\right)^2 |D[k]|^2 E_s}{σ_z^2}
+$$
+
+$$
+\begin{aligned}
+    P_e^{(k)} ≈ Q\left(\frac{\frac{N}{T}|D[k]| d_{min}^{A[n]}}{2σ_z}\right)
+\end{aligned}
+$$
