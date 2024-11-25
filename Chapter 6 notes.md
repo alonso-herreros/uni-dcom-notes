@@ -24,6 +24,10 @@ title: Digital Communications - Chapter 6. Coding for Error Protection
     * [Error detection](#error-detection)
     * [Probability of error with coding](#probability-of-error-with-coding)
 * [Bit rate](#bit-rate)
+* [Linear block codes](#linear-block-codes)
+    * [Generating matrix](#generating-matrix)
+    * [Systematic linear block codes](#systematic-linear-block-codes)
+    * [Decoder for Linear Block Codes](#decoder-for-linear-block-codes)
 * [Glossary](#glossary)
 
 ---
@@ -493,6 +497,99 @@ until the identity matrix is obtained on the left (or right) side.
 >
 > Which *is* in systematic form.
 
+### Decoder for Linear Block Codes
+
+Instead of calculating the Hamming distance between the received word and all
+possible codewords, having a Linear Block Code allows us to greatly simplify the
+decoding process of transforming the received word $\bar{r}$ into the estimated
+codeword $\hat{\bar{c}}$
+
+Given the generating matrix $\overline{\overline{G}}$, we can find an orthogonal
+matrix $\overline{\overline{H}}_{(n-k)×n}$ called the **parity-check matrix**:
+
+$$
+\overline{\overline{G}} ⋅ \overline{\overline{H}}^T = \overline{0}
+$$
+
+If we have a **systematic** generating matrix, the parity-check matrix is
+very easy to obtain:
+
+$$
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_{k} & \overline{\overline{P}} \\
+    \end{array}
+\end{bmatrix} ⟹ \overline{\overline{H}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}}^T & \overline{\overline{I}}_{n-k} \\
+    \end{array}
+\end{bmatrix} \\[0.5em]
+
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}} & \overline{\overline{I}}_{k} \\
+    \end{array}
+\end{bmatrix} ⟹ \overline{\overline{H}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_{n-k} & \overline{\overline{P}}^T \\
+    \end{array}
+\end{bmatrix}
+$$
+
+Now, observe what happens when a valid codeword is received and multiplied by the
+parity-check matrix:
+
+$$
+\bar{c}_i ⋅ \overline{\overline{H}}^T
+    = \bar{b}_i ⋅ \overline{\overline{G}} ⋅ \overline{\overline{H}}^T
+    = \bar{0}
+$$
+
+However, if there are errors, the received word $\bar{r}$ is not a valid
+codeword, and the product will not be the all-zero vector. This is called the
+**syndrome**:
+
+$$
+\begin{aligned}
+    \bar{s} &= \bar{r} ⋅ \overline{\overline{H}}^T \\
+        &= (\bar{c}_i + \bar{e}) ⋅ \overline{\overline{H}}^T \\
+        &= \bar{e} ⋅ \overline{\overline{H}}^T \\
+\end{aligned}
+$$
+
+We can use the parity-check matrix and the syndrome to detect and correct
+errors.
+
+#### Step 1: Error-syndrome table
+
+The first step is to build an **error-syndrome table**, where each error pattern
+is multiplied by the parity-check matrix to obtain the corresponding syndrome.
+
+| Error pattern | Syndrome                                            |
+| :-----------: | --------------------------------------------------- |
+|  $\bar{e}_1$  | $\bar{s}_1 = \bar{e}_1 ⋅ \overline{\overline{H}}^T$ |
+|  $\bar{e}_2$  | $\bar{s}_2 = \bar{e}_2 ⋅ \overline{\overline{H}}^T$ |
+|   $\vdots$    | $\vdots$                                            |
+|  $\bar{e}_N$  | $\bar{s}_N = \bar{e}_N ⋅ \overline{\overline{H}}^T$ |
+
+There is a total of $N = 2^{n-k}$ possible syndromes, one for each possible
+combination of $n$ bits that is not a valid codeword.
+
+#### Step 2: Obtain the syndrome of the received word
+
+The second step is to obtain the syndrome of the received word $\bar{r}$:
+
+$$
+\bar{s} = \bar{r} ⋅ \overline{\overline{H}}^T
+$$
+
+#### Step 3: Look up the syndrome in the table
+
+The last step is to look up the syndrome in the table and correct the error
+associated to it.
+
+<!-- ======================================================================= -->
+
 ## Glossary
 
 **Input word**
@@ -562,9 +659,52 @@ a linear block code.
 the first $k$ columns.
 
     $$
-    \overline{\overline{G}}_{SLBC} = \begin{bmatrix}
+    \text{Systematic} ⟺
+    \overline{\overline{G}} = \begin{bmatrix}
         \begin{array}{c:c}
         \overline{\overline{I}}_k & \overline{\overline{P}} \\
         \end{array}
     \end{bmatrix}
+    $$
+
+**Parity matrix** — $\overline{\overline{P}}$
+
+: $k$ by $n-k$ matrix that contains the parity bits of a systematic linear block
+code.
+
+**Parity-check matrix** — $\overline{\overline{H}}_{(n-k)×n}$
+
+: Orthogonal matrix to the generating matrix, such that the product of both is
+the all-zero vector.
+
+    For a systematic linear block code, the parity-check matrix is:
+
+$$
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_{k} & \overline{\overline{P}} \\
+    \end{array}
+\end{bmatrix} ⟹ \overline{\overline{H}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}}^T & \overline{\overline{I}}_{n-k} \\
+    \end{array}
+\end{bmatrix} \\[0.5em]
+
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}} & \overline{\overline{I}}_{k} \\
+    \end{array}
+\end{bmatrix} ⟹ \overline{\overline{H}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_{n-k} & \overline{\overline{P}}^T \\
+    \end{array}
+\end{bmatrix}
+$$
+
+**Syndrome**
+
+: Vector obtained by multiplying the received word by the parity-check matrix.
+
+    $$
+    \bar{s} = \bar{r} ⋅ \overline{\overline{H}}^T
     $$
