@@ -588,6 +588,223 @@ $$
 The last step is to look up the syndrome in the table and correct the error
 associated to it.
 
+## Convolutional codes
+
+As opposed to block codes, convolutional codes are *filter-like*, and they
+can work in the digital domain.
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+src(["$$\bar{b}$$"]) --> enc[Conv. <br/> Encoder]
+enc --"$$\bar{c}$$"--> ch{{...}}
+ch  --"$$\bar{r}$$"--> dec[Conv. <br/> Decoder]
+dec --> rcv(["$$\hat{\bar{b}}$$"])
+```
+
+### Convolutional encoder
+
+A convolutional encoder does not only encode $k$ bits of information into
+$n$ bits, but it has a **memory of $m$ words**, which means that the encoded
+word $\bar{c}_i$ of length $k$ depends on the current input word $\bar{b}_i$ and
+the $m-1$ previous input words: $\{\bar{b}_i\}_{i=i-1}^{i-m}$.
+
+We can model the processing as an operation on **shift registers**:
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+bi(["$$\bar{b}_i$$"])
+
+subgraph srk ["Shift register k"]
+    bik["$$\bar{b}_{i,k}$$"]
+    bik_1["$$\bar{b}_{i-1,k}$$"]
+    %% bik__["$$\dots$$"]
+    bik_m["$$\bar{b}_{1-m_k,k}$$"]
+    bik -."shift".-> bik_1 -."...".-> bik_m
+end
+
+subgraph sr_ ["Shift registers 2 to (k-1)"]
+    bi_["$$\dots$$"]
+end
+
+subgraph sr1 ["Shift register 1"]
+    bi1["$$\bar{b}_{i,1}$$"]
+    bi1_1["$$\bar{b}_{i-1,1}$$"]
+    %% bi1__["$$\dots$$"]
+    bi1_m["$$\bar{b}_{1-m_1,1}$$"]
+    bi1 -."shift".-> bi1_1 -."...".-> bi1_m
+end
+
+subgraph codeword ["Codeword"]
+    ci1["$$\bar{c}_{i,1}$$"]
+    ci_["$$\vdots$$"]
+    cin["$$\bar{c}_{i,k}$$"]
+    ci(["$$\bar{c}_i$$"])
+end
+
+bi --> bi1 & bik
+bi ---> sr_
+
+bi1 & bi1_1 & bi1_m --"0|1"--> xor1 & xorn
+bik & bik_1 & bik_m --"0|1"--> xor1 & xorn
+
+xor1(("$$\oplus$$")) --> ci1(["$$\bar{c}_{i,1}$$"])
+xor_(("$$\oplus$$")) --> ci_(["$$\vdots$$"])
+xorn(("$$\oplus$$")) --> cin(["$$\bar{c}_{i,k}$$"])
+
+%% sr_ ~~~ xor1 & xor_ & xorn
+
+ci1 & ci_ & cin --> ci(["$$\bar{c}_i$$"])
+```
+
+We will model the memory 'shift register' for each bit of the input word
+**independently**, which means in some cases we can have different values of $m$
+for each of the $k$ bits of the input word: $\{m_j\}_{j=1}^{k}$. Only if they
+are all equal we can say that the convolutional encoder has a memory of $m$.
+
+The encoder can be modeled as a **finite state machine** with $2^{m*k}$ states
+(or $2^{∑_{j=1}^{k} m_j}$ if the memory is different for each bit), and we can
+represent the transitions between states as a **trellis diagram**.
+
+> **Example**
+>
+> Let's see an example for a convolutional encoder with $k=1$, $n=2$ and $m=1$:
+>
+> Let our codeword be defined as:
+>
+> * $\bar{c}_i,1 = \bar{b}_i \oplus \bar{b}_{i-1} \oplus \bar{b}_{i-2}$
+> * $\bar{c}_i,2 = \bar{b}_i \oplus \bar{b}_{i-2}$
+>
+> We can represent that transition as an operation on shift registers:
+>
+> ```mermaid
+> %%{init: {'forceLegacyMathML':'true'} }%%
+> flowchart LR
+> 
+> 
+> ```
+>
+> We can also represent it as a state diagram:
+>
+> ```mermaid
+> %%{init: {'forceLegacyMathML':'true'} }%%
+> stateDiagram-v2
+> 00 --> 00: 0 | 00
+> 00 --> 10: 1 | 11
+> 10 --> 01: 0 | 01
+> 10 --> 11: 1 | 10
+> 01 --> 00: 0 | 11
+> 01 --> 10: 1 | 00
+> 11 --> 01: 0 | 10
+> 11 --> 11: 1 | 01
+> ```
+>
+> Or as a trellis diagram:
+>
+> ```mermaid
+> %%{init: {'forceLegacyMathML':'true'} }%%
+> flowchart LR
+> 
+> subgraph s11 ["11"]
+>     s11a(["[11]"]); s11b((" "))
+> end
+> subgraph s10 ["10"]
+>     s10a(["[10]"]); s10b((" "))
+> end
+> subgraph s01 ["01"]
+>     s01a(["[01]"]); s01b((" "))
+> end
+> subgraph s00 ["00"]
+>     s00a(["[00]"]); s00b((" "))
+> end
+> 
+> s00a --"0 | 00"--> s00b
+> s00a --"1 | 11"--> s10b
+> s01a --"0 | 11"--> s00b
+> s01a --"1 | 00"--> s10b
+> s10a --"0 | 01"--> s01b
+> s10a --"1 | 10"--> s11b
+> s11a --"0 | 10"--> s01b
+> s11a --"1 | 01"--> s11b
+> ```
+
+### Convolutional decoder
+
+The ideal convolutional decoder is a **Viterbi decoder** and a **hard decoder**
+
+We can represent the decoding process as a trellis diagram, where every
+transition is labeled with the **Hamming distance** between the received word
+and the expected codeword for that transition
+
+> **Example**
+
+Let's visualize the process of decoding the following word using the same
+convolutional encoder as before:
+
+$$
+\bar{r} = 10 \, 00 \, 11 \, 00 \, 01
+$$
+
+Assuming the beginning and ending states are `00`:
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+subgraph s11 ["11"]
+    s11a(["[11]"]) ~~~ s11b(( )) ~~~ s11c(( )); s11d(( )) ~~~ s11e(( )) ~~~ s11f(( ))
+end
+subgraph s10 ["10"]
+    s10a(["[10]"]) ~~~ s10b(( )); s10c(( )); s10d(( )) ~~~ s10e(( )) ~~~ s10f(( ))
+end
+subgraph s01 ["01"]
+    s01a(["[01]"]) ~~~ s01b(( )) ~~~ s01c(( )); s01d(( )); s01e(( )) ~~~ s01f(( ))
+end
+subgraph s00 ["00"]
+    s00a(["[00]"]); s00b(( )); s00c(( )); s00d(( )); s00e(( )); s00f(( ))
+end
+
+s00a --"1"--> s00b
+s00a --"1"--> s10b
+
+s00b --"0"--> s00c
+s00b --"2"--> s10c
+s10b --"1"--> s01c
+s10b --"1"--> s11c
+
+s00c --"2"--> s00d
+s00c --"0"--> s10d
+s01c --"0"--> s00d
+s01c --"2"--> s10d
+s10c --"1"--> s01d
+s10c --"1"--> s11d
+s11c --"1"--> s01d
+s11c --"1"--> s11d
+
+s00d --"0"--> s00e
+%% s00d --"2"--> s10e
+s01d --"2"--> s00e
+%% s01d --"0"--> s10e
+s10d --"1"--> s01e
+%% s10d --"1"--> s11e
+s11d --"1"--> s01e
+%% s11d --"1"--> s11e
+
+s00e --"1"--> s00f
+%% s00e --"1"--> s10f
+s01e --"1"--> s00f
+%% s01e --"1"--> s10f
+%% s10e --"0"--> s01f
+%% s10e --"2"--> s11f
+%% s11e --"2"--> s01f
+%% s11e --"0"--> s11f
+```
+
+### Convolutional code distance
+
+The *distance* for a convolutional code is $D_{min}$, the minimum distance
+between two different paths. The procedure for finding that can be found in previous chapters.
+
 <!-- ======================================================================= -->
 
 ## Glossary
