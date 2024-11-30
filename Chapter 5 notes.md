@@ -20,8 +20,10 @@ title: Digital Communications - Chapter 5. Multipulse Modulation
     * [Implementation](#implementation)
     * [Summary](#summary)
 * [Multicarrier modulation](#multicarrier-modulation)
+* [Annexed material](#annexed-material)
+* [Addendum: Quick notes](#addendum-quick-notes)
     * [Cyclic prefix](#cyclic-prefix)
-    * [Annex](#annex)
+    * [Some formula taken from a lecture](#some-formula-taken-from-a-lecture)
 
 ---
 
@@ -42,11 +44,11 @@ communications system capable of working despite them.
 
 > **:information_source: Note**
 >
-> These fadings are usually caused by the environment, due to the fact that the
-> signal doesn't reach the receiver directly, but instead bounces off walls,
-> floors, etc. This causes the signal to arrive at the receiver through
-> different paths, with different delays, and thus different phases. These
-> channels are called **multipath channels**.
+> Fadings are usually caused by the environment, due to the fact that the signal
+> doesn't reach the receiver directly, but instead bounces off walls, floors,
+> etc. This causes the signal to arrive at the receiver through different paths,
+> with different delays, and thus different phases. These channels are called
+> **multipath channels**.
 
 We have several options:
 
@@ -457,32 +459,32 @@ $$
 S(jω) = ∑_{k=0}^{N-1} S_k(jω) = \frac{1}{T} ∑_{k=0}^{N-1} E_k |ϕ_k(jω)|^2
 $$
 
-```mermaid
-%%{init: {'forceLegacyMathML':'true'} }%%
-flowchart LR
-v(["$$v[m]$$"])
-subgraph mcdmod ["MC D-demod"]
-    stp["<br/>S/P<br/>&nbsp;"]
-    DFT["<br/>DFT<br/>N points"]
-    pts["<br/>P/S<br/>&nbsp;"]
-    dec["Decisor"]
-end
-A_(["$$A[m]$$"])
+> **Note on the details about this section**
+>
+> The notes on this section are sparse, as the lecture was almost entirely
+> a review of the annexed material, and the content was covered very quickly.
 
-v --> stp --> DFT --> pts --> dec --> A_
-```
+## Annexed material
+
+Be sure to check out the following files as well for more details on multipulse
+modulation:
+
+* [Supporting slides](./Material/5.%20Multipulse%20modulations%20(slides).pdf)
+    * Alt: [AG link](https://aulaglobal.uc3m.es/mod/resource/view.php?id=5232030)
+
+## Addendum: Quick notes
 
 ### Cyclic prefix
 
-> **Note**: not checked. Use with caution.
->
-> If you take the last $k$ symbols of the sequence $s[m]$, where $k$ is the
-> number of deltas in $d[m]$ minus 1 (the memory of $d[m]$), and you also put
-> them at the beginning of the sequence, you can remove ISI and ICI.
+> **Note**: this was barely covered in the lecture, so the following explanation
+> is very shaky and may not be correct.
 
-### Annex
+In multicarrier modulation, iff you take the last $k$ symbols of the sequence
+$s[m]$, where $k$ is the number of deltas in $d[m]$ minus 1 (the memory of
+$d[m]$), and you also put them at the beginning of the sequence, you can remove
+ISI and ICI.
 
-Some formula taken from a lecture:
+### Some formula taken from a lecture
 
 $$
 \begin{aligned}
