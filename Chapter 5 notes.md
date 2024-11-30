@@ -1,10 +1,10 @@
 ---
-title: Digital Communications - Chapter 4. Multipulse Modulation
+title: Digital Communications - Chapter 5. Multipulse Modulation
 ---
 
 ## Digital Communications <!-- omit in toc -->
 
-# Chapter 4. Multipulse Modulation
+# Chapter 5. Multipulse Modulation
 
 *Academic year 2024-2025*  
 
