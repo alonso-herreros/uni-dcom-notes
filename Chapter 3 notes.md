@@ -643,7 +643,7 @@ u[n] = c[d] A[n-d] + ∑_{k≠d} c[k] A[n-k] + z'[n]
 $$
 
 $$
-σ_{\text{ISI}}^2 = ∑_{k=0}^{L_p+L_w} |c[k]|^2 E_s
+σ_{\text{ISI}}^2 = ∑_{k≠d} |c[k]|^2 E_s
 $$
 
 $$
