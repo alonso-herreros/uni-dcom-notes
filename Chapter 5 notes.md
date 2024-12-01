@@ -20,9 +20,9 @@ title: Digital Communications - Chapter 5. Multipulse Modulation
     * [Implementation](#implementation)
     * [Summary](#summary)
 * [Multicarrier modulation](#multicarrier-modulation)
+    * [Cyclic prefix](#cyclic-prefix)
 * [Annexed material](#annexed-material)
 * [Addendum: Quick notes](#addendum-quick-notes)
-    * [Cyclic prefix](#cyclic-prefix)
     * [Some formula taken from a lecture](#some-formula-taken-from-a-lecture)
 
 ---
@@ -289,7 +289,7 @@ We'll model this expression with $v[n]$ as a block diagram
 ```mermaid
 %%{init: {'forceLegacyMathML':'true'} }%%
 flowchart LR
-r(["$$r[n]$$"])
+r(["$$r(t)$$"])
 rcv_fc["$$g_c(-t)$$"]
 sampling["Sampl. $$\,t=mT_c$$"]
 seq_(["$$\tilde{x}^*[m]$$"]) --> seq_mult(("$$\times$$"))
@@ -407,6 +407,12 @@ $$
 
 ## Multicarrier modulation
 
+> **Note on the details about this section**
+>
+> The notes on this section are sparse, as the lecture was almost entirely a
+> review of the [annexed material](#annexed-material), and the content was
+> covered very quickly.
+
 In spread spectrum, we split the shaping filter $g(t)$ in the **time domain**:
 the duration $T$ was split into $N$ parts of equal duration $T_c$. In
 multicarrier modulation, we'll split the available **bandwidth** into $N$
@@ -459,10 +465,30 @@ $$
 S(jω) = ∑_{k=0}^{N-1} S_k(jω) = \frac{1}{T} ∑_{k=0}^{N-1} E_k |ϕ_k(jω)|^2
 $$
 
-> **Note on the details about this section**
->
-> The notes on this section are sparse, as the lecture was almost entirely
-> a review of the annexed material, and the content was covered very quickly.
+### Cyclic prefix
+
+> **Note**: this was barely covered in the lecture, so the following explanation
+> is very shaky and may not be correct.
+
+In order to **remove ISI and ICI**, we must use a **cyclic prefix**. This
+technique consists of taking the last $M$ symbols of the sequence $s[m]$ and
+putting them at the beginning of the sequence before sending it, where $M$ is
+the memory of $d[m]$ (length of $d[m]$ - 1). The transmitted sequence will be:
+
+$$
+\begin{aligned}
+    \tilde{s}[m]
+    &= \underbrace{s[N-M], s[N-M+1], …, s[N-1]}_{\text{Last M samples of } s[m]},
+        \underbrace{s[0], s[1], …, s[N-1]}_{s[m]} \\
+    &= \begin{cases}
+        s[N+m] & \text{ for } m = -M, …, -1 \\
+        s[m] & \text{ for } m = 0, …, N-1
+    \end{cases}
+\end{aligned}
+$$
+
+If the channel is a delta function, its memory will be 0, and we won't need to
+use a cyclic prefix.
 
 ## Annexed material
 
@@ -473,16 +499,6 @@ modulation:
     * Alt: [AG link](https://aulaglobal.uc3m.es/mod/resource/view.php?id=5232030)
 
 ## Addendum: Quick notes
-
-### Cyclic prefix
-
-> **Note**: this was barely covered in the lecture, so the following explanation
-> is very shaky and may not be correct.
-
-In multicarrier modulation, iff you take the last $k$ symbols of the sequence
-$s[m]$, where $k$ is the number of deltas in $d[m]$ minus 1 (the memory of
-$d[m]$), and you also put them at the beginning of the sequence, you can remove
-ISI and ICI.
 
 ### Some formula taken from a lecture
 
