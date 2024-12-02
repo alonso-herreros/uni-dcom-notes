@@ -861,7 +861,7 @@ channel (the bits that were flipped).
 : Set of linearly independent codewords needed to generate all the codewords in
 a linear block code.
 
-**Generating matrix** — $\overline{\overline{G}}$
+**Generating matrix** — $\overline{\overline{G}}_{k×n}$
 
 : $k$ by $n$ matrix which contains the generating codewords as rows:
 
@@ -888,7 +888,7 @@ the first $k$ columns.
     \end{bmatrix}
     $$
 
-**Parity matrix** — $\overline{\overline{P}}$
+**Parity matrix** — $\overline{\overline{P}}_{k×(n-k)}$
 
 : $k$ by $n-k$ matrix that contains the parity bits of a systematic linear block
 code.
@@ -922,7 +922,7 @@ $$
 \end{bmatrix}
 $$
 
-**Syndrome**
+**Syndrome** — $\bar{s}$
 
 : Vector obtained by multiplying the received word by the parity-check matrix.
 
