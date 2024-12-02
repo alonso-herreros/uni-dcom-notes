@@ -279,12 +279,28 @@ $$
 > \underbrace{s[0], s[1], …, s[N-1]}_{s[m]} \\
 > $$
 
-### Probability of error
+### Noise and error
+
+$$
+D[k] = \text{DFT}\{d[n]\}
+$$
 
 $$
 P_e^{(k)} ≈ Q\left(\frac{\frac{N}{T}|D[k]| d_{min}^{A[n]}}{2σ_z}\right)
 $$
 
+#### Signal to Noise Ratio
+
 $$
-D[k] = \text{DFT}\{d[n]\}
+SNR = \frac{\left(\frac{N}{T}\right)^2 |D[k]|^2 E_s}{σ_z^2}
+$$
+
+### Some formulas taken from a lecture
+
+$$
+\begin{aligned}
+    q_k[n] &= ∑_{i=0}^{N-1} A_i[n] * p_{k,i}[n] + z[n]\\
+    &\Big\downarrow \; p_{k,i}[n] = 0 ∀ i ≠ k; p_{i,i}[n] = δ[n] \\
+    &= \frac{N}{T} D[k] A_k[n] + z[n] \\
+\end{aligned}
 $$
