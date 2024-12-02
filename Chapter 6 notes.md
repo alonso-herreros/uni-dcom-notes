@@ -28,6 +28,10 @@ title: Digital Communications - Chapter 6. Coding for Error Protection
     * [Generating matrix](#generating-matrix)
     * [Systematic linear block codes](#systematic-linear-block-codes)
     * [Decoder for Linear Block Codes](#decoder-for-linear-block-codes)
+* [Convolutional codes](#convolutional-codes)
+    * [Convolutional encoder](#convolutional-encoder)
+    * [Convolutional decoder](#convolutional-decoder)
+    * [Convolutional code distance](#convolutional-code-distance)
 * [Glossary](#glossary)
 
 ---
