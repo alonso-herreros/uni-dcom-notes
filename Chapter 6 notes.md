@@ -809,6 +809,19 @@ s01e --"1"--> s00f
 The *distance* for a convolutional code is $D_{min}$, the minimum distance
 between two different paths. The procedure for finding that can be found in previous chapters.
 
+### Convolutional code error probability
+
+$$
+P_e^{cc} = c∑^{nz} ϵ^e(1-ϵ)^{nz-e}
+$$
+
+Where
+
+$$
+e = \left⌊\frac{D_{min}-1}{2}\right⌋ +1 \\
+ϵ = P_e^{QPSK}
+$$
+
 <!-- ======================================================================= -->
 
 ## Glossary
