@@ -32,6 +32,7 @@ title: Digital Communications - Chapter 6. Coding for Error Protection
     * [Convolutional encoder](#convolutional-encoder)
     * [Convolutional decoder](#convolutional-decoder)
     * [Convolutional code distance](#convolutional-code-distance)
+    * [Convolutional code error probability](#convolutional-code-error-probability)
 * [Glossary](#glossary)
 
 ---
@@ -673,53 +674,34 @@ represent the transitions between states as a **trellis diagram**.
 
 > **Example**
 >
-> Let's see an example for a convolutional encoder with $k=1$, $n=2$ and $m=1$:
+> Let's see an example for a convolutional encoder with $k=1$, $n=2$ and $m=2$:
 >
 > Let our codeword be defined as:
 >
-> * $\bar{c}_i,1 = \bar{b}_i \oplus \bar{b}_{i-1} \oplus \bar{b}_{i-2}$
-> * $\bar{c}_i,2 = \bar{b}_i \oplus \bar{b}_{i-2}$
+> * $\bar{c}_{i,1} = \bar{b}_i \oplus \bar{b}_{i-1} \oplus \bar{b}_{i-2}$
+> * $\bar{c}_{i,2} = \bar{b}_i \oplus \bar{b}_{i-2}$
 >
-> We can represent that transition as an operation on shift registers:
+> We can represent that transition as an operation on shift registers (omitted)
 >
-> ```mermaid
-> %%{init: {'forceLegacyMathML':'true'} }%%
-> flowchart LR
-> 
-> 
-> ```
+> We can also represent it as a state diagram (omitted)
 >
-> We can also represent it as a state diagram:
->
-> ```mermaid
-> %%{init: {'forceLegacyMathML':'true'} }%%
-> stateDiagram-v2
-> 00 --> 00: 0 | 00
-> 00 --> 10: 1 | 11
-> 10 --> 01: 0 | 01
-> 10 --> 11: 1 | 10
-> 01 --> 00: 0 | 11
-> 01 --> 10: 1 | 00
-> 11 --> 01: 0 | 10
-> 11 --> 11: 1 | 01
-> ```
->
-> Or as a trellis diagram:
+> Or as a trellis diagram, where each transition is labeled with $b_i | c_{i,1}
+> c_{i,2}$:
 >
 > ```mermaid
 > %%{init: {'forceLegacyMathML':'true'} }%%
 > flowchart LR
 > 
-> subgraph s11 ["11"]
+> subgraph s11 [" "]
 >     s11a(["[11]"]); s11b((" "))
 > end
-> subgraph s10 ["10"]
+> subgraph s10 [" "]
 >     s10a(["[10]"]); s10b((" "))
 > end
-> subgraph s01 ["01"]
+> subgraph s01 [" "]
 >     s01a(["[01]"]); s01b((" "))
 > end
-> subgraph s00 ["00"]
+> subgraph s00 [" "]
 >     s00a(["[00]"]); s00b((" "))
 > end
 > 
@@ -727,11 +709,17 @@ represent the transitions between states as a **trellis diagram**.
 > s00a --"1 | 11"--> s10b
 > s01a --"0 | 11"--> s00b
 > s01a --"1 | 00"--> s10b
-> s10a --"0 | 01"--> s01b
-> s10a --"1 | 10"--> s11b
-> s11a --"0 | 10"--> s01b
-> s11a --"1 | 01"--> s11b
+> s10a --"0 | 10"--> s01b
+> s10a --"1 | 01"--> s11b
+> s11a --"0 | 01"--> s01b
+> s11a --"1 | 10"--> s11b
 > ```
+>
+> > **Note**
+> >
+> > The bottom half of the diagram (where the outputs are `01` and
+> > `10`) is not be 100% correct, and the order of those outputs might have to
+> > be swapped (`01` becoming `10` and vice-versa).
 
 ### Convolutional decoder
 
@@ -742,67 +730,62 @@ transition is labeled with the **Hamming distance** between the received word
 and the expected codeword for that transition
 
 > **Example**
-
-Let's visualize the process of decoding the following word using the same
-convolutional encoder as before:
-
-$$
-\bar{r} = 10 \, 00 \, 11 \, 00 \, 01
-$$
-
-Assuming the beginning and ending states are `00`:
-
-```mermaid
-%%{init: {'forceLegacyMathML':'true'} }%%
-flowchart LR
-subgraph s11 ["11"]
-    s11a(["[11]"]) ~~~ s11b(( )) ~~~ s11c(( )); s11d(( )) ~~~ s11e(( )) ~~~ s11f(( ))
-end
-subgraph s10 ["10"]
-    s10a(["[10]"]) ~~~ s10b(( )); s10c(( )); s10d(( )) ~~~ s10e(( )) ~~~ s10f(( ))
-end
-subgraph s01 ["01"]
-    s01a(["[01]"]) ~~~ s01b(( )) ~~~ s01c(( )); s01d(( )); s01e(( )) ~~~ s01f(( ))
-end
-subgraph s00 ["00"]
-    s00a(["[00]"]); s00b(( )); s00c(( )); s00d(( )); s00e(( )); s00f(( ))
-end
-
-s00a --"1"--> s00b
-s00a --"1"--> s10b
-
-s00b --"0"--> s00c
-s00b --"2"--> s10c
-s10b --"1"--> s01c
-s10b --"1"--> s11c
-
-s00c --"2"--> s00d
-s00c --"0"--> s10d
-s01c --"0"--> s00d
-s01c --"2"--> s10d
-s10c --"1"--> s01d
-s10c --"1"--> s11d
-s11c --"1"--> s01d
-s11c --"1"--> s11d
-
-s00d --"0"--> s00e
-%% s00d --"2"--> s10e
-s01d --"2"--> s00e
-%% s01d --"0"--> s10e
-s10d --"1"--> s01e
-%% s10d --"1"--> s11e
-s11d --"1"--> s01e
-%% s11d --"1"--> s11e
-
-s00e --"1"--> s00f
-%% s00e --"1"--> s10f
-s01e --"1"--> s00f
-%% s01e --"1"--> s10f
-%% s10e --"0"--> s01f
-%% s10e --"2"--> s11f
-%% s11e --"2"--> s01f
-%% s11e --"0"--> s11f
-```
+>
+> Let's visualize the process of decoding the following word using the same
+> convolutional encoder as before:
+>
+> $$
+> \bar{r} = 10 \, 00 \, 11 \, 00 \, 01
+> $$
+>
+> Assuming the beginning and ending states are `00`:
+>
+> ```mermaid
+> %%{init: {'forceLegacyMathML':'true'} }%%
+> flowchart LR
+> subgraph s11 ["11"]
+>     s11a(["[11]"]) ~~~ s11b(( )) ~~~ s11c(( )); s11d(( )) ~~~ s11e(( )) ~~~ s11f(( ))
+> end
+> subgraph s10 ["10"]
+>     s10a(["[10]"]) ~~~ s10b(( )); s10c(( )); s10d(( )) ~~~ s10e(( )) ~~~ s10f(( ))
+> end
+> subgraph s01 ["01"]
+>     s01a(["[01]"]) ~~~ s01b(( )) ~~~ s01c(( )); s01d(( )); s01e(( )) ~~~ s01f(( ))
+> end
+> subgraph s00 ["00"]
+>     s00a(["[00]"]); s00b(( )); s00c(( )); s00d(( )); s00e(( )); s00f(( ))
+> end
+> %% r = 10
+> s00a =="1"==> s00b((1))
+> s00a =="1"==> s10b((1))
+> %% r = 00
+> s00b =="0"==> s00c((1))
+> s00b --"2"--> s10c((3))
+> s10b =="1"==> s01c((2))
+> s10b --"1"--> s11c((2))
+> %% r = 11
+> s00c -."2".-> s00d;
+> s00c =="0"==> s10d((1))
+> s01c =="0"==> s00d((2))
+> s01c -."2".-> s10d;
+> s10c -."1".-> s01d;
+> s10c -."1".-> s11d;
+> s11c --"1"--> s01d((3))
+> s11c --"1"--> s11d((3))
+> %% r = 00
+> s00d =="0"==> s00e((2))
+> s01d -."2".-> s00e;
+> s10d =="1"==> s01e((2))
+> s11d -."1".-> s01e;
+> %% r = 01
+> s00e =="1"==> s00f((3))
+> s01e =="1"==> s00f((3))
+> ```
+>
+> It seems there are two equally likely paths, which are highlighted.
+>
+> > **Note** I'm not sure we actually finished the example in class, so the
+> > result may be wrong.
 
 ### Convolutional code distance
 
@@ -942,3 +925,8 @@ $$
     $$
     \bar{s} = \bar{r} ⋅ \overline{\overline{H}}^T
     $$
+
+**Syndrome table**
+
+: Table that contains all syndromes and their corresponding most likely error
+patterns.
