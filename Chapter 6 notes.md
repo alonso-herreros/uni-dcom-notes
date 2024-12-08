@@ -366,26 +366,25 @@ The following properties follow:
 
 * The all-zero codeword is part of the code.
 * The sum of any codeword with the all-zero codeword is the codeword itself.
-* We can simplify the minimum distance:
-
-    $$
-    d_{min} = \min_{\bar{c}_i ≠ \bar{0}} wt(\bar{c}_i)
-    $$
+* We can simplify the minimum distance: $\displaystyle d_{min} = \min_{\bar{c}_i
+  ≠ \bar{0}} wt(\bar{c}_i)$
 
 Linear block codes are very easy to encode and decode.
 
-Let's look at parity coding for $k=2$ bits. The code is:
-
-$$
-\begin{aligned}
-    00 &\rightarrow 000 = \bar{c}_1 \\
-    01 &\rightarrow 011 = \bar{c}_2\\
-    10 &\rightarrow 101 = \bar{c}_3\\
-    11 &\rightarrow 110 = \bar{c}_4
-\end{aligned}
-$$
-
-It is simple to check that this code is linear.
+> **Example**
+>
+> Let's look at parity coding for $k=2$ bits. The code is:
+>
+> $$
+> \begin{aligned}
+>     00 &\rightarrow 000 = \bar{c}_1 \\
+>     01 &\rightarrow 011 = \bar{c}_2\\
+>     10 &\rightarrow 101 = \bar{c}_3\\
+>     11 &\rightarrow 110 = \bar{c}_4
+> \end{aligned}
+> $$
+>
+> It is simple to check that this code is linear.
 
 ### Generating matrix
 
