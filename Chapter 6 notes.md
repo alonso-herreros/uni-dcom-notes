@@ -794,21 +794,26 @@ between two different paths. The procedure for finding that can be found in prev
 ### Convolutional code error probability
 
 $$
-P_e^{cc} = c∑^{nz} ϵ^e(1-ϵ)^{nz-e}
+P_e^{cc} ≈ κ ∑_{i=e}^{nz} \begin{pmatrix} nz \\ i \end{pmatrix} ϵ^i(1-ϵ)^{nz-i}
 $$
 
 Where
 
 $$
-e = \left⌊\frac{D_{min}-1}{2}\right⌋ +1 \\
-ϵ = P_e^{QPSK}
+\begin{aligned}
+    % κ \text{Kiss number (# of paths at } D_{min} \text{ from reference}
+    κ &: \text{Kiss number (\# of paths at $D_{min}$ from the reference)}\\
+    e &= \left⌊\frac{D_{min}-1}{2}\right⌋ +1 \\
+    z &: \text{Length of shortest path at distance $D_{min}$} \\
+    ϵ &= P_e^{BSC}
+\end{aligned}
 $$
 
 <!-- ======================================================================= -->
 
 ## Glossary
 
-**Input word**
+**Input word** — $\bar{b}_i$
 
 : Word of $k$ bits of information to be transmitted, seen at the input.
 
