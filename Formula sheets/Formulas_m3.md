@@ -240,20 +240,20 @@ $$ -->
 * Frequency division
 * $A[m]$ transmitted through $N$ channels simultaneously
 
-#### Bandwidth
+#### SS Bandwidth
 
 $$
 B_k = \frac{B}{N} \\
 R_{s;k} = B_k = \frac{B}{N}
 $$
 
-#### Shaping
+#### SS Shaping
 
 $$
 s(t) = ∑_{k=0}^{N-1} s_k(t) = ∑_{k=0}^{N-1} A_k[n] ϕ_k(t-nT)
 $$
 
-#### Energy
+#### SS Energy
 
 Assuming uncorrelated $A_k[n]$ sequences:
 
