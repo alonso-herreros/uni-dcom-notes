@@ -32,6 +32,11 @@ h1, h2, .supt1, .supt2, .subt1, .subt2 {
 
 p { text-align: justify; }
 
+/* Prevent changing colors for visited links */
+a, a:visited {
+    color: blue;
+}
+
 /* #region Inline and fenced code */
 code {
     font-size: 80%;
@@ -45,13 +50,13 @@ pre {
     background-color: var(--vscode-textCodeBlock-background);
     border: 1px solid var(--vscode-widget-border);
 }
+/* #endregion Inline and Fenced code */
 
 img {
     background-color: var(--vscode-textBlockQuote-background);
     padding: 5px;
     border-radius: 4px;
 }
-/* #endregion Inline and Fenced code */
 
 /* #region Blockquotes */
 blockquote {
