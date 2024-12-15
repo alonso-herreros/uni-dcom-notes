@@ -113,13 +113,17 @@ $$
 > subgraph p_ ["p[n]"]
 >     subgraph p ["p(t)"]
 >         g["$$g(t)$$"]
->         subgraph bp ["(Bandpass)"]
->             carr_in(["$$\sqrt{2}e^{jω_ct}$$"]) --> bp_mult(("$$\times$$"))
+>         h_bb["$$h(t)$$"]
+>
+>         subgraph h_eq ["$$h_{eq}(t) \quad$$ (Bandpass)"]
+>             carr_in(["$$\sqrt{2}e^{jω_ct}$$"])   --> upmod(("$$\times$$"))
+>             carr_out(["$$\sqrt{2}e^{-jω_ct}$$"]) --> downmod(("$$\times$$"))
 >             re["$$\R\{⋅\}$$"]
->             carr_out(["$$\sqrt{2}e^{-jω_ct}$$"]) --> bb_mult(("$$\times$$"))
+>             h_bp["$$h(t)$$"]
+>             awgn_bp(("$$+$$"))
 >         end
->         h["$$h(t)$$"]
->         awgn(("$$+$$"))
+>
+>         awgn_bb(("$$+$$"))
 >         f["$$f(t)$$"]
 >     end
 >     sampl["Sampling <br/> t=nT"]
@@ -129,14 +133,12 @@ $$
 > A_(("$$\hat{A}[n]$$"))
 > 
 > A --> g
-> g -."$$s(t) \;$$ (BB)".-> h
-> g --"$$s(t)$$"--> bp_mult --> re --"$$x(t)$$"--> h
-> h --> awgn
-> awgn -."$$r(t) \;$$ (BB)".-> f
-> awgn --"$$y(t)$$"--> bb_mult --"$$r(t)$$"-->
+> g -."$$s(t) \;$$ (BB)".-> h_bb --> awgn_bb -."$$r(t)$$".-> f
+> g -."$$s(t) \;$$ (BP)".-> upmod --> re --"$$x(t)$$"--> h_bp -->
+>     awgn_bp --"$$y(t)$$"--> downmod -."$$r(t)$$".-> f
 > f --"$$q(t)$$"--> sampl --"$$q[n]$$"--> dec --> A_
 > 
-> n(("$$n(t)$$")) --> awgn
+> n(("$$n(t)$$")) -.-> awgn_bb & awgn_bp
 > ```
 
 ### Baseband
