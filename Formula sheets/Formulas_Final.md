@@ -347,7 +347,8 @@ $$
 $$
 \overline{W}_{\text{c}}
     = \mathrm{pinv} \left(\overline{\overline{P}}\right) \overline{C}_d; \quad
-    c_d[n] = δ[n-d]
+    c_d[n] = δ[n-d] \\
+    \mathrm{pinv} (A) = A^+ \stackrel{\text{[LI columns]}}{=} (A^* A)^{-1} A^*
 $$
 
 <hr class="pagebreak" />
