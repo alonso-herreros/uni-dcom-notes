@@ -401,7 +401,7 @@ $$
 T_c = \tfrac{T}{N}
 $$
 
-#### Equivalent channel
+#### SS Equivalent channel
 
 $$
 p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
@@ -417,20 +417,20 @@ $$
 s[m] = A\left[\left⌊\tfrac{m}{N}\right⌋\right] \tilde{x}[m]
 $$
 
-#### Shaping
+#### SS Shaping
 
 $$
 g(t) = ∑_{m=0}^{N-1} x[m] g_c(t-mT_c) \\
 s(t) = ∑_n ∑_{m=0}^{N-1} A[n] x[m] g_c(t-mT_c - nT) \\
 $$
 
-#### Reception — Despreading
+#### SS Reception — Despreading
 
 $$
 q[n] = ∑_{m=0}^{N-1} x^*[m]v[m+nN]
 $$
 
-#### Energy
+#### SS Energy
 
 $$
 S_s(jω) = \tfrac{1}{T} \underbrace{S_A(e^{jωT})}_{E_s} |G(jω)|^2
