@@ -68,12 +68,19 @@ table {
     height: 0.2rem;
 }
 
+.colbreak {
+    column-span: all;
+    margin: 1px 0;
+    padding: 0;
+    border: none;
+}
+
 .pagebreak {
     column-span: all;
     break-after: page;
-    border: none;
     margin: 0;
     padding: 0;
+    border: none;
 }
 
 /* This allows me to put a code span or equation spanning all columns */
@@ -407,8 +414,7 @@ $$
 p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
 $$
 
-<!-- Restart columns -->
-<hr style="column-span: all; margin: 1px; border: none;" />
+<hr class="colbreak" />
 
 #### Spreading with $x[m]$
 
