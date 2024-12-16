@@ -442,3 +442,56 @@ $$
 S_s(jω) = \tfrac{1}{T} \underbrace{S_A(e^{jωT})}_{E_s} |G(jω)|^2
     \underbrace{\left|∑_{m=0}^{N-1}x[m]e^{-jωmT_c}\right|^2}_{S_x{e^{jωT_c}}}
 $$
+
+### Multicarrier Modulation – Orthogonal Frequency-Division Multiplexing (OFDM)
+
+* $A[m]$ transmitted through $N$ channels, $N$ symbols at a time.
+
+$$
+R_{s; \text{ ch. }k} ≤ B_k = \tfrac{B}{N}
+$$
+
+#### OFDM Modulator
+
+![alt text](img/MCD_mod.png)
+<p class="caption"></p> <!-- Cancels image bottom margin -->
+
+$$
+s(t) = ∑_{k=0}^{N-1} s_k(t) = ∑_{k=0}^{N-1} A_k[n] ϕ_k(t-nT)
+$$
+
+#### OFDM Demodulator
+
+![alt text](img/MCD_demod.png)
+<p class="caption"></p> <!-- Cancels image bottom margin -->
+
+$$
+\begin{aligned}
+    q_k[n] &= ∑_{i=0}^{N-1} A_i[n] * p_{k,i}[n] + z[n]\\
+    &\;\big\downarrow \; p_{k,i}[n] = δ[n] δ[i-k] \\
+    &= \tfrac{N}{T} D[k] A_k[n] + z[n] \\
+\end{aligned}
+$$
+
+<hr class="colbreak" />
+
+#### OFDM Noise and error
+
+$$
+D[k] = \text{DFT}\{d[n]\} \\
+SNR = \frac{\left(\frac{N}{T}\right)^2 |D[k]|^2 E_s}{σ_z^2} \\
+P_e^{(k)} ≈ Q\left(\frac{\frac{N}{T}|D[k]| d_{min}^{A[n]}}{2σ_z}\right) \\
+$$
+
+#### OFDM Energy
+
+$$
+\text{Uncorr. } \bar{A}_k ⟹ S(jω) = ∑_{k=0}^{N-1} S_k(jω) = \tfrac{1}{T} ∑_{k=0}^{N-1} E_k |ϕ_k(jω)|^2
+$$
+
+#### Cyclic prefix - Removes ISI and ICI
+
+$$
+\tilde{s}[m] = \underbrace{s[N-M], …, s[N-1]}_{\text{Last M samples of } s[m]},
+    \underbrace{s[0], …, s[N-1]}_{s[m]} \\
+$$
