@@ -495,3 +495,167 @@ $$
 \tilde{s}[m] = \underbrace{s[N-M], …, s[N-1]}_{\text{Last M samples of } s[m]},
     \underbrace{s[0], …, s[N-1]}_{s[m]} \\
 $$
+
+<hr class="pagebreak" />
+
+## Chapter 6. Coding for Error Protection
+
+* **Input word**: $\bar{b}_i$ ($k$ bits)
+* **Codeword**: $\bar{c}_i$ ($n$ bits, $2^k$ combinations)
+* **Code**: $\mathcal C = \{\bar{c}_i\}_{i=1}^{2^k}$ ($2^k$ codewords)
+* **Code rate** = $\frac{k}{n}$ $→$ Bitrate with coding: $R_b^{\mathcal{C}} = \frac{k}{n} R_b$
+* **Weight**: $wt(\bar{c}_i) = \text{\# of 1's in } \bar{c}_i$
+
+#### (Hamming) distance
+
+$$
+d_H(\bar{c}_i, \bar{c}_j) = \text{\# of bits different} \\
+d_{min} = \min_{i \neq j} d_H(\bar{c}_i, \bar{c}_j)
+$$
+
+#### Error correction and detection capabilities
+
+* Max detectable errors: $d_{min}-1$
+* Max correctable errors: $\left⌊\frac{d_{min}-1}{2}\right⌋$
+
+### Decoding
+
+#### Hard decoder
+
+$$
+\bar{r} = \bar{c} + \bar{e}
+    → \hat{\bar{b}} = \arg\min_{\bar{c}_i} d_H(\bar{r}, \bar{c}_i)
+$$
+
+#### Soft decoder
+
+```mermaid
+%%{init: {'forceLegacyMathML':'true'} }%%
+flowchart LR
+b(("$$\bar{b}_i$$"))
+n(("$$\bar{z}$$")) --> awgn
+b    -->                   enc[Encoder]
+enc  --"$$\bar{c}_i$$"-->  senc[Symbol <br/> Encoder]
+senc --"$$\bar{a}_i$$"---> awgn(("$$+$$"))
+awgn --"$$\bar{q}$$"-->    dec[Decoder]
+dec  -->                   b_(["$$\hat{\bar{b}}_i$$"])
+```
+
+<p class="caption"></p> <!-- Cancels chart bottom margin -->
+
+$$
+\bar{q} = \bar{a} + \bar{z}
+    → \hat{\bar{b}} = \arg\min_{\bar{b}_i} d_H(\bar{q}, \bar{a}|_{\bar{b}_i})
+$$
+
+### Linear block codes
+
+$$
+\bar{c}_i + \bar{c}_j ∈ \mathcal{C} \;∀\; i, j
+$$
+
+#### Properties
+
+* $\bar{0} ∈ \mathcal{C}$
+* $\bar{c}_i + \bar{0} = \bar{c}_i$
+* $\displaystyle d_{min} = \min_{\bar{c}_i≠\bar{0}} wt(\bar{c}_i)$
+* Easy to encode and decode
+
+#### Generating matrix
+
+$$
+\overline{\overline{G}}_{k×n} = [\bar{g}_1, …, \bar{g}_k]^T
+$$
+
+* $\{\bar{g}_i\}_{i=1}^{k}$ are the **generating codewords** (LI)
+
+$$
+\bar{c}_i = \bar{b}_i ⋅ \overline{\overline{G}}
+$$
+
+### Systematic code
+
+* $\bar{b}_i$ is always at the left or right end of $\bar{c}_i$
+
+#### Systematic linear block code
+
+$$
+\text{LBC is sys.} ⟺
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_k & \overline{\overline{P}} \\
+    \end{array}
+\end{bmatrix} or
+\begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}} & \overline{\overline{I}}_k \\
+    \end{array}
+\end{bmatrix}
+$$
+
+$\overline{\overline{P}}_{k×(n-k)}$ is the **Parity matrix**
+
+#### Parity-check matrix $\overline{\overline{H}}_{(n-k)×n}$
+
+$$
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_{k} & \overline{\overline{P}} \\
+    \end{array}
+\end{bmatrix} ⟹ \overline{\overline{H}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}}^T & \overline{\overline{I}}_{n-k} \\
+    \end{array}
+\end{bmatrix} \\[0.5em]
+
+\overline{\overline{G}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{P}} & \overline{\overline{I}}_{k} \\
+    \end{array}
+\end{bmatrix} ⟹ \overline{\overline{H}} = \begin{bmatrix}
+    \begin{array}{c:c}
+    \overline{\overline{I}}_{n-k} & \overline{\overline{P}}^T \\
+    \end{array}
+\end{bmatrix}
+$$
+
+#### Decoding with syndrome
+
+* **Syndrome**: $\bar{s} = \bar{r} ⋅ \overline{\overline{H}}^T$
+
+<p class="caption"></p> <!-- Cancels list bottom margin -->
+
+|           $\bar{e}$           | $\bar{s} = \bar{e}⋅\overline{\overline{H}}^T$ |
+| :---------------------------: | :-------------------------------------------: |
+| [$\bar{e}$ with least errors] |           [All possible syndromes]            |
+
+1. Find $\bar{s} = \bar{r} ⋅ \overline{\overline{H}}^T$
+2. Find corresponding $\bar{e}$ in table: $\hat{\bar{e}}$
+3. $\hat{\bar{c}} = \bar{r} + \hat{\bar{e}}$
+
+### Convolutional Coding
+
+#### Convolutional encoder
+
+* $k$ bits $→$ $n$ coded bits
+* Memory $m$: last $m⋅k$ bits affect output
+* Defined by $\left\{\bar{g}_i^j\right\}_{i,j=1}^{n,k}$ ($m$ bits each)
+
+#### Convolutional decoder
+
+* Viterbi algorithm
+
+#### CC distance
+
+* $D_{min}$ via Viterbi minimum distance algorithm
+
+#### CC error probability
+
+$$
+P_e^{cc} ≈ κ ∑_{\mathclap{e=\left⌊\frac{D_{min}-1}{2}\right⌋ +1}}^{nz}
+    \begin{pmatrix} nz \\ e \end{pmatrix} ϵ^e(1-ϵ)^{nz-e}
+$$
+
+* $κ$: kiss number (or unknown constant)
+* $z$: Length of shortest path at distance $D_{min}$
+* $ϵ = P_e^{BSC}$
