@@ -67,10 +67,13 @@ table {
 .katex .katex-html>.newline {
     height: 0.2rem;
 }
+
 .pagebreak {
     column-span: all;
-    border: none;
     break-after: page;
+    border: none;
+    margin: 0;
+    padding: 0;
 }
 
 /* This allows me to put a code span or equation spanning all columns */
@@ -352,3 +355,84 @@ $$
 $$
 
 <hr class="pagebreak" />
+
+## Chapter 5. Multipulse Modulation
+
+### Spread Spectrum (time division, frequency expansion)
+
+> ```mermaid
+> %%{init: {'forceLegacyMathML':'true'} }%%
+> flowchart LR
+> A(["$$A[n]$$"])
+> subgraph p ["$$p[n]$$"]
+> upsample["$$\uparrow N$$"]
+> w["$$w_N[m]$$"]
+> seq(["$$\tilde{x}[n]$$"]) --> seq_mult(("$$\times$$"))
+> 
+> subgraph d_ ["d[n]"]
+> subgraph d ["$$d(t)$$"]
+> gc["$$g_c(t)$$"]
+> heq[["$$h_{eq}(t)$$"]]
+> n_add(("$$+$$"))
+> rcv_fc["$$g_c(-t)$$"]
+> end
+> sample["Sampl. $$\,t=mT_c$$"]
+> end
+> 
+> seq_(["$$\tilde{x}^*[m]$$"])
+> seq__mult(("$$\times$$"))
+> rcv_w["$$w_N[-m]$$"]
+> downsample["$$\downarrow N$$"]
+> end
+> noise_(["$$\sqrt{2}e^{-jω_ct}n(t)$$"]) --> n_add
+> q(["$$q[n]$$"])
+> 
+> A --> upsample --> w --> seq_mult
+> seq_mult --"$$s[m]$$"--> gc --"$$s(t)$$"--> heq --"$$y(t)$$"--> n_add --"$$r(t)$$"--> rcv_fc
+> rcv_fc --"$$v(t)$$"--> sample
+> sample --"$$v[m]$$"--> seq__mult --> rcv_w --> downsample --> q
+> 
+> seq_ --> seq__mult
+> ```
+
+* $A[n]$ transmitted $N$ times in $T$, once per $T_c$
+
+$$
+T_c = \tfrac{T}{N}
+$$
+
+#### Equivalent channel
+
+$$
+p[n] = ∑_{m=0}^{N-1} ∑_{l=0}^{N-1} x[m] x^*[l] d[nN + l - m]
+$$
+
+<!-- Restart columns -->
+<hr style="column-span: all; margin: 1px; border: none;" />
+
+#### Spreading with $x[m]$
+
+$$
+\tilde{x}[m] = x [m \text{ mod } N];\quad
+s[m] = A\left[\left⌊\tfrac{m}{N}\right⌋\right] \tilde{x}[m]
+$$
+
+#### Shaping
+
+$$
+g(t) = ∑_{m=0}^{N-1} x[m] g_c(t-mT_c) \\
+s(t) = ∑_n ∑_{m=0}^{N-1} A[n] x[m] g_c(t-mT_c - nT) \\
+$$
+
+#### Reception — Despreading
+
+$$
+q[n] = ∑_{m=0}^{N-1} x^*[m]v[m+nN]
+$$
+
+#### Energy
+
+$$
+S_s(jω) = \tfrac{1}{T} \underbrace{S_A(e^{jωT})}_{E_s} |G(jω)|^2
+    \underbrace{\left|∑_{m=0}^{N-1}x[m]e^{-jωmT_c}\right|^2}_{S_x{e^{jωT_c}}}
+$$
