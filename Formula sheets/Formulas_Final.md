@@ -556,22 +556,22 @@ $$
 
 #### Properties
 
-* $\bar{0} ∈ \mathcal{C}$
-* $\bar{c}_i + \bar{0} = \bar{c}_i$
+* $\bar{0} ∈ \mathcal{C}; \quad \bar{c}_i + \bar{0} = \bar{c}_i$
 * $\displaystyle d_{min} = \min_{\bar{c}_i≠\bar{0}} wt(\bar{c}_i)$
 * Easy to encode and decode
 
 #### Generating matrix
 
 $$
-\overline{\overline{G}}_{k×n} = [\bar{g}_1, …, \bar{g}_k]^T
+\overline{\overline{G}}_{k×n} = \begin{bmatrix}
+    \bar{g}_1 \\
+    \vdots \\
+    \bar{g}_k
+\end{bmatrix}
 $$
 
 * $\{\bar{g}_i\}_{i=1}^{k}$ are the **generating codewords** (LI)
-
-$$
-\bar{c}_i = \bar{b}_i ⋅ \overline{\overline{G}}
-$$
+* $\bar{c}_i = \bar{b}_i ⋅ \overline{\overline{G}}$
 
 ### Systematic code
 
